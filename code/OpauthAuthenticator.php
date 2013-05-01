@@ -20,4 +20,17 @@ class OpauthAuthenticator extends MemberAuthenticator {
 		return self::config()->enabled_strategies;
 	}
 
+	public static function get_login_form(Controller $controller) {
+		return Object::create("OpauthLoginForm", $controller, "LoginForm");
+	}
+
+	/**
+	 * Get the name of the authentication method
+	 *
+	 * @return string Returns the name of the authentication method.
+	 */
+	public static function get_name() {
+		return _t('OpauthAuthenticator.TITLE', 'Social Login');
+	}
+
 }
