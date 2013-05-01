@@ -8,5 +8,6 @@ OpauthController:
   opauth_path: '/opauth/'
 Director:
   rules:
-    'opauth/$Strategy': 'OpauthController'
+    'opauth/strategy/$Strategy/$StrategyMethod': 'OpauthController'
+    'opauth/strategy/$Strategy': 'OpauthController'
     'opauth': 'OpauthController'

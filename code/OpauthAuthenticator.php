@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Base authenticator for SilverStripe Opauth module.
  *
- * @author Will Morgan <will.morgan@betterbrief.co.uk>
+ * @author Will Morgan <@willmorgan>
+ * @author Dan Hensby <@dhensby>
  */
 class OpauthAuthenticator extends MemberAuthenticator {
 
@@ -18,11 +20,7 @@ class OpauthAuthenticator extends MemberAuthenticator {
 		/**
 		 * @var Opauth Persistent Opauth instance.
 		 */
-		$opauth,
-		/**
-		 * @var boolean debug
-		 */
-		$debug = false;
+		$opauth;
 
 	/**
 	 * get_enabled_strategies
@@ -34,19 +32,22 @@ class OpauthAuthenticator extends MemberAuthenticator {
 
 	/**
 	 * get_opauth_config
+	 * @param array Any extra overrides
 	 * @return array Config for use with Opauth
 	 */
-	public static function get_opauth_config() {
+	public static function get_opauth_config($mergeConfig = array()) {
 		$config = self::config();
-		return array(
-			'path' => OpauthController::get_path(),
-			'callback_url' => OpauthController::get_callback_path(),
-			'security_salt' => $config->opauth_security_salt,
-			'security_iteration' => $config->opauth_security_iteration,
-			'security_timeout' => $config->opauth_security_timeout,
-			'callback_transport' => $config->opauth_callback_transport,
-			'debug' => self::is_debug(),
-			'Strategy' => $config->opauth_strategy_config,
+		return array_merge(
+			array(
+				'path' => OpauthController::get_path(),
+				'callback_url' => OpauthController::get_callback_path(),
+				'security_salt' => $config->opauth_security_salt,
+				'security_iteration' => $config->opauth_security_iteration,
+				'security_timeout' => $config->opauth_security_timeout,
+				'callback_transport' => $config->opauth_callback_transport,
+				'Strategy' => $config->opauth_strategy_config,
+			),
+			$mergeConfig
 		);
 	}
 
@@ -55,9 +56,9 @@ class OpauthAuthenticator extends MemberAuthenticator {
 	 * @param boolean $autoRun Should Opauth auto run? Default: false
 	 * @return Opauth The Opauth instance. Isn't it easy to typo this as Opeth?
 	 */
-	public static function opauth($autoRun = false) {
+	public static function opauth($autoRun = false, $config = array()) {
 		if(!isset(self::$opauth)) {
-			self::$opauth = new Opauth(self::get_opauth_config(), $autoRun);
+			self::$opauth = new Opauth(self::get_opauth_config($config), $autoRun);
 		}
 		return self::$opauth;
 	}
@@ -85,18 +86,6 @@ class OpauthAuthenticator extends MemberAuthenticator {
 	 */
 	public static function get_name() {
 		return _t('OpauthAuthenticator.TITLE', 'Social Login');
-	}
-
-	/**
-	 * Set debug
-	 * @param boolean $debug
-	 * @return boolean Is it debug time?
-	 */
-	public static function is_debug($debug = null) {
-		if(isset($debug)) {
-			self::$debug = $debug;
-		}
-		return self::$debug;
 	}
 
 }

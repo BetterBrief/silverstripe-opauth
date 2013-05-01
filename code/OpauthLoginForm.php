@@ -5,8 +5,8 @@
  * The form presented to users for signing in with an Opauth strategy.
  * Not a form, rather a gateway that works by taking enabled strategies and
  * displaying a button to start the OAuth process with that strategy provider.
- *
- * @author Will Morgan <will@betterbrief>
+ * @author Will Morgan <@willmorgan>
+ * @author Dan Hensby <@dhensby>
  */
 class OpauthLoginForm extends LoginForm {
 

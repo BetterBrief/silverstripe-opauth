@@ -4,18 +4,18 @@
  * OpauthController
  * Wraps around Opauth for handling callbacks.
  * The SS equivalent of "index.php" and "callback.php" in the Opauth package.
- * @author Will Morgan <will@betterbrief>
+ * @author Will Morgan <@willmorgan>
+ * @author Dan Hensby <@dhensby>
  */
 class OpauthController extends Controller {
 
 	private static
 		$allowed_actions = array(
 			'index',
-			'callback',
+			'finished',
 		),
 		$url_handlers = array(
-			// Some inconsistent strategies use oauth_callback
-			'oauth_callback' => 'callback',
+			'finished' => 'finished',
 		);
 
 	/**
@@ -26,9 +26,22 @@ class OpauthController extends Controller {
 	 * @todo: Validate the strategy works before delegating to Opauth.
 	 */
 	public function index(SS_HTTPRequest $request) {
+
 		$strategy = $request->param('Strategy');
-		// Redirects:
-		OpauthAuthenticator::opauth(true);
+		$method = $request->param('StrategyMethod');
+
+		if(!isset($strategy)) {
+			$this->redirect('Security/login');
+		}
+
+		// If there is no method then we redirect (not a callback)
+		if(!isset($method)) {
+			// Redirects:
+			OpauthAuthenticator::opauth(true);
+		}
+		else {
+			return $this->oauthCallback($request);
+		}
 	}
 
 	/**
@@ -37,9 +50,21 @@ class OpauthController extends Controller {
 	 * When done validating, we return back to the Authenticator continue auth.
 	 * @throws SS_HTTPResponse_Exception if any validation errors
 	 */
-	public function callback(SS_HTTPRequest $request) {
+	protected function oauthCallback(SS_HTTPRequest $request) {
+
+		// Set up and run opauth with the correct params from the strategy:
+		$opauth = OpauthAuthenticator::opauth(true, array(
+			'strategy'	=> $request->param('Strategy'),
+			'action'	=> $request->param('StrategyMethod'),
+		));
+
+	}
+
+	public function finished(SS_HTTPRequest $request) {
+
 		$opauth = OpauthAuthenticator::opauth(false);
-		$response = $this->getOpauthResponse($opauth);
+
+		$response = $this->getOpauthResponse();
 
 		// Handle all Opauth validation in this handy function
 		try {
@@ -49,7 +74,8 @@ class OpauthController extends Controller {
 			$this->httpError(400, $e->getMessage());
 		}
 
-		return 'callback';
+		Debug::dump($response);
+		return 'I AM SO DONE';
 	}
 
 	/**
@@ -57,8 +83,8 @@ class OpauthController extends Controller {
 	 * @throws InvalidArugmentException
 	 * @return array The response
 	 */
-	protected function getOpauthResponse(Opauth $opauth) {
-		$transportMethod = $opauth->env['callback_transport'];
+	protected function getOpauthResponse() {
+		$transportMethod = OpauthAuthenticator::config()->get('opauth_callback_transport');
 		switch($transportMethod) {
 			case 'session':
 				return $this->getResponseFromSession();
@@ -96,6 +122,9 @@ class OpauthController extends Controller {
 
 		$invalidReason;
 
+		/**
+		 * @todo: improve this signature check. it's a bit weak.
+		 */
 		if(!$opauth->validate(
 			sha1(print_r($response['auth'], true)),
 			$response['timestamp'],
@@ -113,7 +142,7 @@ class OpauthController extends Controller {
 	protected function requireResponseComponents(array $components, $response) {
 		foreach($components as $component) {
 			if(empty($response[$component])) {
-				throw new InvalidArgumentException('Required component ' . $component . ' was missing');
+				throw new InvalidArgumentException('Required component "'.$component.'" was missing');
 			}
 		}
 	}
@@ -135,17 +164,25 @@ class OpauthController extends Controller {
 
 	/**
 	 * 'path' param for use in Opauth's config
+	 * MUST have trailling slash for Opauth needs
 	 * @return string
 	 */
 	public static function get_path() {
-		return self::config()->opauth_path;
+		return Controller::join_links(
+			self::config()->opauth_path,
+			'strategy/'
+		);
 	}
 
 	/**
 	 * 'callback_url' param for use in Opauth's config
+	 * MUST have trailling slash for Opauth needs
 	 * @return string
 	 */
 	public static function get_callback_path() {
-		return self::get_path() . 'callback/';
+		return Controller::join_links(
+			self::config()->opauth_path,
+			'finished/'
+		);
 	}
 }
