@@ -11,6 +11,9 @@
 class OpauthLoginForm extends LoginForm {
 
 	private
+		/*
+		 * @var boolean
+		 */
 		$_strategiesDefined = false;
 
 	protected

@@ -65,6 +65,7 @@ class OpauthAuthenticator extends MemberAuthenticator {
 	/**
 	 * get_strategy_segment
 	 * Works around Opauth's weird URL scheme - GoogleStrategy => /google/
+	 * @return string
 	 */
 	public static function get_strategy_segment($strategy) {
 		return preg_replace('/(strategy)$/', '', strtolower($strategy));
