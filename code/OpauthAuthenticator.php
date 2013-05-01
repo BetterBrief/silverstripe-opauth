@@ -10,7 +10,23 @@ class OpauthAuthenticator extends MemberAuthenticator {
 		/**
 		 * @config array The enabled strategy classes for Opauth
 		 */
-		$enabled_strategies = array();
+		$enabled_strategies = array(),
+		/**
+		 * @config string
+		 */
+		$opauth_path,
+		/**
+		 * @config string
+		 */
+		$security_salt,
+		/**
+		 * @var Opauth Persistent Opauth instance.
+		 */
+		$opauth,
+		/**
+		 * @var boolean debug
+		 */
+		$debug = false;
 
 	/**
 	 * get_enabled_strategies
@@ -20,8 +36,39 @@ class OpauthAuthenticator extends MemberAuthenticator {
 		return self::config()->enabled_strategies;
 	}
 
+	/**
+	 * get_opauth_config
+	 * @return array Config for use with Opauth
+	 */
+	public function get_opauth_config() {
+		$config = self::config();
+		return array(
+			'security_salt' => $config->security_salt,
+			'security_iteration' => $config->security_iteration,
+			'security_timeout' => $config->security_timeout,
+			'callback_transport' => $config->callback_transport,
+			'debug' => self::is_debug(),
+			'Strategy' => $config->strategy_config,
+		);
+	}
+
+	/**
+	 * opauth
+	 * @param boolean $autoRun Should Opauth auto run? Default: false
+	 * @return Opauth The Opauth instance. Isn't it easy to typo this as Opeth?
+	 */
+	public static function opauth($autoRun = false) {
+		if(!isset(self::$opauth)) {
+			self::$opauth = new Opauth(self::get_opauth_config, $autoRun);
+		}
+		return self::$opauth;
+	}
+
+	/**
+	 * @return OpauthLoginForm
+	 */
 	public static function get_login_form(Controller $controller) {
-		return Object::create("OpauthLoginForm", $controller, "LoginForm");
+		return new OpauthLoginForm($controller, 'LoginForm');
 	}
 
 	/**
@@ -31,6 +78,18 @@ class OpauthAuthenticator extends MemberAuthenticator {
 	 */
 	public static function get_name() {
 		return _t('OpauthAuthenticator.TITLE', 'Social Login');
+	}
+
+	/**
+	 * Set debug
+	 * @param boolean $debug
+	 * @return boolean Is it debug time?
+	 */
+	public static function is_debug($debug = null) {
+		if(isset($debug)) {
+			self::$debug = $debug;
+		}
+		return self::$debug;
 	}
 
 }

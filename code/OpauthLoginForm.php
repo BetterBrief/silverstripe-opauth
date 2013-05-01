@@ -23,9 +23,13 @@ class OpauthLoginForm extends LoginForm {
 		parent::__construct($controller, $name, $this->getFields(), $this->getActions());
 	}
 
+	/**
+	 * Override httpSubmission so we definitely have strategy handlers.
+	 * This is because Form::httpSubmission is directly called.
+	 */
 	public function httpSubmission($request) {
 		$this->defineStrategyHandlers();
-		parent::httpSubmission($request);
+		return parent::httpSubmission($request);
 	}
 
 	/**
@@ -37,8 +41,8 @@ class OpauthLoginForm extends LoginForm {
 				$strategyMethod = 'handleStrategy' . $strategyClass;
 				$this->addWrapperMethod($strategyMethod, 'handleStrategy');
 			}
+			$this->_strategiesDefined = true;
 		}
-		$this->_strategiesDefined = true;
 	}
 
 	/**
@@ -75,12 +79,29 @@ class OpauthLoginForm extends LoginForm {
 	}
 
 	/**
-	 * Global endpoint for handleStrategy - all strategy actions point here
+	 * Global endpoint for handleStrategy - all strategy actions point here.
+	 * @throws LogicException This should not be directly called.
+	 * @throws InvalidArgumentException The strategy must be valid and existent
+	 * @param string $funcName The bound function name from addWrapperMethod
+	 * @param array $data Standard data param as part of form submission
+	 * @param OpauthLoginForm $form
+	 * @param SS_HTTPRequest $request
 	 * @return ViewableData
 	 */
-	public function handleStrategy($data, $form) {
-		Debug::dump($data);
-		return 'yeh';
+	public function handleStrategy($funcName, $data, $form, $request) {
+		if(func_num_args() < 4) {
+			throw new LogicException('Must be called with a strategy handler');
+		}
+		// Trim handleStrategy from the function name:
+		$strategy = substr($funcName, strlen('handleStrategy'));
+		// Check the strategy is good
+
+		if(!class_exists($strategy) || $strategy instanceof OpauthStrategy) {
+			throw new InvalidArgumentException('Opauth strategy '.$strategy.' was not found or is not a valid strategy');
+		}
+		$opauth = OpauthAuthenticator::opauth();
+
+		return $strategy;
 	}
 
 }
