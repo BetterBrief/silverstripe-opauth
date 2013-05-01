@@ -94,14 +94,18 @@ class OpauthLoginForm extends LoginForm {
 		}
 		// Trim handleStrategy from the function name:
 		$strategy = substr($funcName, strlen('handleStrategy'));
-		// Check the strategy is good
 
+		// Check the strategy is good
 		if(!class_exists($strategy) || $strategy instanceof OpauthStrategy) {
 			throw new InvalidArgumentException('Opauth strategy '.$strategy.' was not found or is not a valid strategy');
 		}
-		$opauth = OpauthAuthenticator::opauth();
 
-		return $strategy;
+		return $this->controller->redirect(
+			Controller::join_links(
+				OpauthController::get_path(),
+				OpauthAuthenticator::get_strategy_segment($strategy)
+			)
+		);
 	}
 
 }

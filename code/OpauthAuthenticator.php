@@ -39,7 +39,8 @@ class OpauthAuthenticator extends MemberAuthenticator {
 	public static function get_opauth_config() {
 		$config = self::config();
 		return array(
-			'path' => 'set this myself',
+			'path' => OpauthController::get_path(),
+			'callback_url' => OpauthController::get_callback_path(),
 			'security_salt' => $config->opauth_security_salt,
 			'security_iteration' => $config->opauth_security_iteration,
 			'security_timeout' => $config->opauth_security_timeout,
@@ -59,6 +60,14 @@ class OpauthAuthenticator extends MemberAuthenticator {
 			self::$opauth = new Opauth(self::get_opauth_config(), $autoRun);
 		}
 		return self::$opauth;
+	}
+
+	/**
+	 * get_strategy_segment
+	 * Works around Opauth's weird URL scheme - GoogleStrategy => /google/
+	 */
+	public static function get_strategy_segment($strategy) {
+		return preg_replace('/(strategy)$/', '', strtolower($strategy));
 	}
 
 	/**
