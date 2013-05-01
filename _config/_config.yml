@@ -10,3 +10,17 @@ OpauthAuthenticator:
     - FacebookStrategy
     - GoogleStrategy
     - TwitterStrategy
+  opauth_security_salt: 'donkey cardboard badger lamp bus'
+  opauth_security_iteration: 500
+  opauth_security_timeout: '2 minutes'
+  opauth_callback_transport: 'session'
+  opauth_strategy_config:
+    Facebook:
+      app_id: ''
+      app_secret: ''
+    Twitter:
+      client_id: ''
+      client_secret: ''
+    Google:
+      key: ''
+      secret: ''

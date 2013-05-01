@@ -14,11 +14,7 @@ class OpauthAuthenticator extends MemberAuthenticator {
 		/**
 		 * @config string
 		 */
-		$opauth_path,
-		/**
-		 * @config string
-		 */
-		$security_salt,
+		$opauth_security_salt,
 		/**
 		 * @var Opauth Persistent Opauth instance.
 		 */
@@ -40,15 +36,16 @@ class OpauthAuthenticator extends MemberAuthenticator {
 	 * get_opauth_config
 	 * @return array Config for use with Opauth
 	 */
-	public function get_opauth_config() {
+	public static function get_opauth_config() {
 		$config = self::config();
 		return array(
-			'security_salt' => $config->security_salt,
-			'security_iteration' => $config->security_iteration,
-			'security_timeout' => $config->security_timeout,
-			'callback_transport' => $config->callback_transport,
+			'path' => 'set this myself',
+			'security_salt' => $config->opauth_security_salt,
+			'security_iteration' => $config->opauth_security_iteration,
+			'security_timeout' => $config->opauth_security_timeout,
+			'callback_transport' => $config->opauth_callback_transport,
 			'debug' => self::is_debug(),
-			'Strategy' => $config->strategy_config,
+			'Strategy' => $config->opauth_strategy_config,
 		);
 	}
 
@@ -59,7 +56,7 @@ class OpauthAuthenticator extends MemberAuthenticator {
 	 */
 	public static function opauth($autoRun = false) {
 		if(!isset(self::$opauth)) {
-			self::$opauth = new Opauth(self::get_opauth_config, $autoRun);
+			self::$opauth = new Opauth(self::get_opauth_config(), $autoRun);
 		}
 		return self::$opauth;
 	}
