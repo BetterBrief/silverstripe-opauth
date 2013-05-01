@@ -14,6 +14,16 @@ FAQ
 ### What version of SilverStripe?
 Requires: SilverStripe 3.1 (maybe 3.0, but untested so far)
 
+### What does this module include?
+It includes:
+- the Opauth core (see below);
+- OpauthAuthenticator, intended to be comparable with MemberAuthenticator;
+- OpauthLoginForm, which offers different ways you can authenticate;
+- OpauthController, which acts as a negotiator for the communication that strategies undertake;
+- OpauthIdentity, intended to give you a service-agnostic interface with which to save Oauth identities in to the Member object.
+
+*NB: Opauth's maintainers recommend you include strategies as required, rather than bundling them together.*
+
 ### Where can I get strategies?
 You can find them under the "Available Strategies" heading on the [Opauth homepage](http://opauth.org)
 
