@@ -6,24 +6,34 @@
  * @author Will Morgan <@willmorgan>
  * @author Dan Hensby <@dhensby>
  */
-class OpauthIdentity {
+class OpauthIdentity extends DataObject {
+
+	private static
+		$db = array(
+			'UID' => 'Varchar(255)',
+			'Provider' => 'Varchar(45)',
+		),
+		$has_one = array(
+			'Member' => 'Member',
+		);
 
 	protected
-		$authProvider,
-		$authSource,
-		$authUID;
+		/**
+		 * @var array source from Opauth
+		 */
+		$authSource;
 
 	/**
 	 * @param string $provider The auth provider, e.g. Google
 	 * @param string $uid The UID specific to the provider, e.g. 55555555
 	 * @param array $auth The full auth source array
-	 */
 	public function __construct($provider, $uid, $auth) {
 		$this->authProvider = $provider;
 		$this->authUID = $uid;
 		$this->authSource = $auth;
 		$this->setupFromAuthSource();
 	}
+	 */
 
 	/**
 	 * factory
@@ -31,16 +41,22 @@ class OpauthIdentity {
 	 * @return OpauthIdentity instance based on $oaResponse.
 	 */
 	public static function factory(array $oaResponse) {
+
 		if(empty($oaResponse['auth'])) {
 			throw new InvalidArgumentException('The auth key is required to continue.');
 		}
 		if(empty($oaResponse['auth']['provider'])) {
 			throw new InvalidArgumentException('Unable to determine provider.');
 		}
-		$auth = $oaResponse['auth'];
-		$provider = $auth['provider'];
-		$uid = $auth['uid'];
-		return new OpauthIdentity($provider, $uid, $auth);
+
+		// Sanitise all input as it's likely some remaining data will be in SQL
+		$auth = Convert::raw2sql($oaResponse['auth']);
+
+		$do = new OpauthIdentity();
+		$do->Provider = $auth['provider'];
+		$do->UID = $auth['uid'];
+		$do->setAuthSource($auth);
+		return $do;
 	}
 
 	public function setAuthSource($auth) {
@@ -48,9 +64,12 @@ class OpauthIdentity {
 		return $this;
 	}
 
+	/**
+	 * @return array The mapping arrangement from auth response to Member.
+	 */
 	public function getMemberMapper() {
 		$mapper = Config::inst()->get(__CLASS__, 'member_mapper');
-		return $mapper[$this->authProvider];
+		return $mapper[$this->Provider];
 	}
 
 	/**
@@ -64,7 +83,7 @@ class OpauthIdentity {
 	 * @see OpauthResponseHelper
 	 * @return array The data record to add to a member
 	 */
-	public function setupFromAuthSource() {
+	public function getMemberRecordFromAuth() {
 		$record = array();
 		foreach($this->getMemberMapper() as $memberField => $sourcePath) {
 			if(is_array($sourcePath)) {
