@@ -86,4 +86,29 @@ abstract class OpauthIdentity {
 		return $currentFrame;
 	}
 
+	protected static function get_smart_locale($language = null, $timeZone = null) {
+
+		require_once FRAMEWORK_PATH . '/thirdparty/Zend/Locale.php';
+		$locale = Zend_Locale::getBrowser();
+
+		if(!$locale) {
+			if($language) {
+				return i18n::get_locale_from_lang($language);
+			}
+			else {
+				return i18n::get_locale();
+			}
+		}
+
+		$locale = array_keys($locale);
+		$firstPref = array_shift($locale);
+
+		if(strpos($firstPref, '_') === false) {
+			return i18n::get_locale_from_lang($language);
+		}
+
+		return $firstPref;
+
+	}
+
 }
