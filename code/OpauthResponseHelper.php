@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * OpauthResponseHelper
+ * Utility class for handling responses from Opauth.
+ * Used in parsing. Can and should be referenced in _config.yml for helping
+ * parse things for member_mapping.
+ * @author Will Morgan <@willmorgan>
+ */
 class OpauthResponseHelper {
 
 	/**

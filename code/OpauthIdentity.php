@@ -21,19 +21,11 @@ class OpauthIdentity extends DataObject {
 		/**
 		 * @var array source from Opauth
 		 */
-		$authSource;
-
-	/**
-	 * @param string $provider The auth provider, e.g. Google
-	 * @param string $uid The UID specific to the provider, e.g. 55555555
-	 * @param array $auth The full auth source array
-	public function __construct($provider, $uid, $auth) {
-		$this->authProvider = $provider;
-		$this->authUID = $uid;
-		$this->authSource = $auth;
-		$this->setupFromAuthSource();
-	}
-	 */
+		$authSource,
+		/**
+		 * @var array The parsed member record, if any
+		 */
+		$parsedRecord;
 
 	/**
 	 * factory
@@ -49,18 +41,103 @@ class OpauthIdentity extends DataObject {
 			throw new InvalidArgumentException('Unable to determine provider.');
 		}
 
-		// Sanitise all input as it's likely some remaining data will be in SQL
-		$auth = Convert::raw2sql($oaResponse['auth']);
+		$auth = $oaResponse['auth'];
 
 		$do = new OpauthIdentity();
-		$do->Provider = $auth['provider'];
-		$do->UID = $auth['uid'];
+		$do->Provider = Convert::raw2sql($auth['provider']);
+		$do->UID = Convert::raw2sql($auth['uid']);
 		$do->setAuthSource($auth);
 		return $do;
 	}
 
+	/**
+	 * @param array $usrSettings A map of settings because there are so many.
+	 * @return Member
+	 */
+	public function findMember($usrSettings = array()) {
+
+		$defaults = array(
+			/**
+			 * Link this identity to any newly discovered member. Doesn't write.
+			 */
+			'linkOnMatch' => true,
+			/**
+			 * True, false, or an array of fields to overwrite if we merge data.
+			 * Exception to this rule is overwriteEmail, which takes precedence.
+			 */
+			'overwriteExistingFields' => false,
+			/**
+			 * Overwrite the email field if it's different. Effectively changes
+			 * the Member login details, so it's set to false for now.
+			 */
+			'overwriteEmail' => false,
+		);
+
+		$settings = array_merge($defaults, $usrSettings);
+
+		if($this->isInDB()) {
+			$member = $this->Member();
+			if($member->exists()) {
+				return $member;
+			}
+		}
+		$record = $this->getMemberRecordFromAuth();
+
+		if(empty($record['Email'])) {
+			return new Member();
+		}
+
+		$email = $record['Email'];
+
+		$member = DataObject::get_one('Member', 'Email = \''.$email.'\'');
+
+		if(!$member) {
+			$member = new Member();
+		}
+
+		if($settings['linkOnMatch']) {
+			if($member->exists()) {
+				$this->setMember($member);
+			}
+		}
+
+		// If this is a new member, give it everything we have.
+		if(!$member->exists()) {
+			$member->update($record);
+		}
+		// If not, we update it carefully using the settings described above.
+		else {
+			$overwrite = $settings['overwriteExistingFields'];
+			$overwriteEmail = $settings['overwriteEmail'];
+			$fieldsToWrite = array();
+
+			// If overwrite is true, take everything (subtract Email later)
+			if($overwrite === true) {
+				$fieldsToWrite = $record;
+			}
+			else if(is_array($overwrite)) {
+				$fieldsToWrite = array_intersect_key($record, ArrayLib::valuekey($overwrite));
+			}
+			// If false then fieldsToWrite remains empty, let's coast it out.
+
+			// Subtract email if setting is not precisely true:
+			if($overwriteEmail !== true && isset($fieldsToWrite['Email'])) {
+				unset($fieldsToWrite['Email']);
+			}
+
+			// Boom, we're so done.
+			$member->update($fieldsToWrite);
+		}
+
+		return $member;
+	}
+
+	/**
+	 * @param array $auth
+	 */
 	public function setAuthSource($auth) {
-		$this->authSource = $auth;
+		$this->authSource = Convert::raw2sql($auth);
+		unset($this->parsedRecord);
 		return $this;
 	}
 
@@ -84,16 +161,19 @@ class OpauthIdentity extends DataObject {
 	 * @return array The data record to add to a member
 	 */
 	public function getMemberRecordFromAuth() {
-		$record = array();
-		foreach($this->getMemberMapper() as $memberField => $sourcePath) {
-			if(is_array($sourcePath)) {
-				$record[$memberField] = call_user_func($sourcePath, $this->authSource);
+		if(empty($this->parsedRecord)) {
+			$record = array();
+			foreach($this->getMemberMapper() as $memberField => $sourcePath) {
+				if(is_array($sourcePath)) {
+					$record[$memberField] = call_user_func($sourcePath, $this->authSource);
+				}
+				else if(is_string($sourcePath)) {
+					$record[$memberField] = OpauthResponseHelper::parse_source_path($sourcePath, $this->authSource);
+				}
 			}
-			else if(is_string($sourcePath)) {
-				$record[$memberField] = OpauthResponseHelper::parse_source_path($sourcePath, $this->authSource);
-			}
+			$this->parsedRecord = $record;
 		}
-		return $record;
+		return $this->parsedRecord;
 	}
 
 }

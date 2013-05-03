@@ -1,13 +1,14 @@
 <?php
 
+/**
+ * OpauthMemberExtension
+ * @author Will Morgan <@willmorgan>
+ */
 class OpauthMemberExtension extends DataExtension {
 
-	public function extraStatics($class = null, $extension = null) {
-		return array(
-			'has_many' => array(
-				'OpauthIdentities' => 'OpauthIdentity',
-			),
+	private static
+		$has_many = array(
+			'OpauthIdentities' => 'OpauthIdentity',
 		);
-	}
 
 }
