@@ -194,13 +194,11 @@ class Opauth{
 		}
 
 		$timestamp_int = strtotime($timestamp);
-Debug::dump('Skipping partially the Opauth response validation - remove me');
-/*
 		if ($timestamp_int < strtotime('-'.$this->env['security_timeout']) || $timestamp_int > time()){
 			$reason = "Auth response expired";
 			return false;
 		}
-*/
+
 		$hash = OpauthStrategy::hash($input, $timestamp, $this->env['security_iteration'], $this->env['security_salt']);
 
 		if (strcasecmp($hash, $signature) !== 0){
