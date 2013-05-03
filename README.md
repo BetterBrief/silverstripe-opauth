@@ -13,7 +13,6 @@ Pre-alpha - In development
  * SilverStripe 3.0+
  * At least one Opauth stratagy
 
-<<<<<<< HEAD
 ## FAQ
 
 ### What version of SilverStripe?
@@ -137,10 +136,8 @@ Config::inst()->update('OpauthIdentity', 'member_mapper', array(
 	),
 ));
 ```
-=======
 ## Documentation
 Please read the [Opauth documentation](https://github.com/opauth/opauth/wiki/) and [our own documentation](docs/en/)
->>>>>>> 1770398ebb0744470592eb0d72dff8f949754c5c
 
 ## Licence
 
