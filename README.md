@@ -1,7 +1,7 @@
 # SilverStripe Opauth
 
 ## Introduction
-Uses the [Opauth library](http://opauth.org) for easy drop-in strategies for social login.
+Uses the [Opauth library](http://opauth.org) for easy drop-in strategies for social login. See their [documentation](https://github.com/opauth/opauth/wiki/)
 
 We intend to release it as a full SilverStripe module that supports Opauth fully in the next few weeks.
 
@@ -43,7 +43,7 @@ It could be you're super clever and have a `_manifest_exclude` file in your `thi
 You define the `OpauthIdentity` `member_mapper` block in your `_config.yml`. Simply provide a hash map of member fields to dot notated paths of the Opauth response array for simple fields, or if you need to perform some parsing to retrieve the value you want, an array of class name and function, like `['OpauthResponseHelper', 'get_first_name']`. It takes the auth response array as an argument. See the example config YAML below for more details.
 
 ### How do I configure the module and its strategies?
-You can put them in your `_config.yml` file. Additionally, as your strategy API details will likely change per domain and thus per environment, you are able to update these using the `Config` API. Here's some examples to help you:
+You can put them in your `_config.yml` file. Additionally, as your strategy API details will likely change per domain and thus per environment, you are able to update these using the `Config` API. Please see the [Opauth config documentation](https://github.com/opauth/opauth/wiki/Opauth-configuration#configuration-array). Here's some examples to help you:
 
 ###### `_config.yml` example:
 ```yml
