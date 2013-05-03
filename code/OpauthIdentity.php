@@ -29,6 +29,7 @@ class OpauthIdentity extends DataObject {
 
 	/**
 	 * factory
+	 * Returns or creates a fresh OpauthIdentity.
 	 * @param array $oaResponse The response object from Opauth.
 	 * @return OpauthIdentity instance based on $oaResponse.
 	 */
@@ -43,9 +44,19 @@ class OpauthIdentity extends DataObject {
 
 		$auth = $oaResponse['auth'];
 
-		$do = new OpauthIdentity();
-		$do->Provider = $auth['provider'];
-		$do->UID = $auth['uid'];
+		$do = OpauthIdentity::get()->filter(
+			array(
+				'Provider' => $auth['provider'],
+				'UID' => $auth['uid'],
+			)
+		)->first();
+
+		if(!$do || !$do->exists()) {
+			$do = new OpauthIdentity();
+			$do->Provider = $auth['provider'];
+			$do->UID = $auth['uid'];
+		}
+
 		$do->setAuthSource($auth);
 		return $do;
 	}
@@ -57,7 +68,7 @@ class OpauthIdentity extends DataObject {
 	 * @param array $usrSettings A map of settings because there are so many.
 	 * @return Member
 	 */
-	public function findMember($usrSettings = array()) {
+	public function findOrCreateMember($usrSettings = array()) {
 
 		$defaults = array(
 			/**
@@ -95,8 +106,12 @@ class OpauthIdentity extends DataObject {
 
 		$member = Member::get()->filter('Email', $email)->first();
 
+		if(!$member) {
+			$member = new Member();
+		}
+
 		if($settings['linkOnMatch'] && $member->exists()) {
-			$this->setMember($member);
+			$this->MemberID = $member->ID;
 		}
 
 		// If this is a new member, give it everything we have.
@@ -134,7 +149,7 @@ class OpauthIdentity extends DataObject {
 	 * @param array $auth
 	 */
 	public function setAuthSource($auth) {
-		$this->authSource = Convert::raw2sql($auth);
+		$this->authSource = $auth;
 		unset($this->parsedRecord);
 		return $this;
 	}

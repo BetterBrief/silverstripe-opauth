@@ -74,8 +74,30 @@ class OpauthController extends Controller {
 			$this->httpError(400, $e->getMessage());
 		}
 
-		Debug::dump($response);
-		return 'I AM SO DONE';
+		$identity = OpauthIdentity::factory($response);
+
+		$member = $identity->findOrCreateMember();
+
+		// If the member exists, associate it with the identity and log in
+		if($member->isInDB()) {
+			if(!$identity->exists()) {
+				$identity->write();
+			}
+		}
+		else {
+			// Create a strong password derived from the response. Random enough?
+			$member->SetPassword = base64_encode(Convert::array2json($response));
+
+			// Check that it passes validation - we might not have full fields
+			if(!$member->validate()) {
+				// Redirect to complete profile
+			}
+
+			$member->write();
+			$identity->write();
+		}
+
+		return $this;
 	}
 
 	/**

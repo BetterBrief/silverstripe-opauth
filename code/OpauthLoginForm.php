@@ -24,6 +24,21 @@ class OpauthLoginForm extends LoginForm {
 
 	public function __construct($controller, $name) {
 		parent::__construct($controller, $name, $this->getFields(), $this->getActions());
+		$this->configureBackURL();
+	}
+
+	public function authenticate() {
+		
+	}
+
+	/**
+	 * Handle any backURL. Uses sessions as state gets lost through OAuth flow.
+	 * Use the same session key as MemberLoginForm for x-compat
+	 */
+	public function configureBackURL() {
+		if($backURL = $this->controller->request->param('BackURL')) {
+			Session::set('BackURL', $backURL);
+		}
 	}
 
 	/**
