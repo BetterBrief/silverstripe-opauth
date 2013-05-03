@@ -44,13 +44,16 @@ class OpauthIdentity extends DataObject {
 		$auth = $oaResponse['auth'];
 
 		$do = new OpauthIdentity();
-		$do->Provider = Convert::raw2sql($auth['provider']);
-		$do->UID = Convert::raw2sql($auth['uid']);
+		$do->Provider = $auth['provider'];
+		$do->UID = $auth['uid'];
 		$do->setAuthSource($auth);
 		return $do;
 	}
 
 	/**
+	 * Finds a member based on this identity. Searches existing records before
+	 * creating a new Member object.
+	 * Note that this method does not write anything, merely sets everything up.
 	 * @param array $usrSettings A map of settings because there are so many.
 	 * @return Member
 	 */
@@ -58,7 +61,7 @@ class OpauthIdentity extends DataObject {
 
 		$defaults = array(
 			/**
-			 * Link this identity to any newly discovered member. Doesn't write.
+			 * Link this identity to any newly discovered member.
 			 */
 			'linkOnMatch' => true,
 			/**
@@ -81,6 +84,7 @@ class OpauthIdentity extends DataObject {
 				return $member;
 			}
 		}
+
 		$record = $this->getMemberRecordFromAuth();
 
 		if(empty($record['Email'])) {
@@ -89,16 +93,10 @@ class OpauthIdentity extends DataObject {
 
 		$email = $record['Email'];
 
-		$member = DataObject::get_one('Member', 'Email = \''.$email.'\'');
+		$member = Member::get()->filter('Email', $email)->first();
 
-		if(!$member) {
-			$member = new Member();
-		}
-
-		if($settings['linkOnMatch']) {
-			if($member->exists()) {
-				$this->setMember($member);
-			}
+		if($settings['linkOnMatch'] && $member->exists()) {
+			$this->setMember($member);
 		}
 
 		// If this is a new member, give it everything we have.
