@@ -36,22 +36,24 @@ Alternatively, you can find them in the [bundle package](http://opauth.org/downl
 ### Where should I put strategies?
 We recommend putting them under `mysite/code/thirdparty`, but it's up to you. Any root level directory that contains a `_config.php` (empty or otherwise) is scanned by the manifest builder.
 
-### How do I map the API responses to a `Member`?
-You define the `OpauthIdentity` `member_mapper` block in your `_config.yml`. Simply provide a hash map of member fields to dot notated paths of the Opauth response array for simple fields, or if you need to perform some parsing to retrieve the value you want, an array of class name and function, like `['OpauthResponseHelper', 'get_first_name']`. It takes the auth response array as an argument. See the example config YAML below for more details.
-
 ### Why isn't SilverStripe finding my stratagies in `mysite/code/thirdparty`?
 It could be you're super clever and have a `_manifest_exclude` file in your `thirdparty` folder, preventing it being spidered by SilverStripe's manifest builder. Try moving the stratagies folder to mysite/code/opauth/
+
+### How do I map the API responses to a `Member`?
+You define the `OpauthIdentity` `member_mapper` block in your `_config.yml`. Simply provide a hash map of member fields to dot notated paths of the Opauth response array for simple fields, or if you need to perform some parsing to retrieve the value you want, an array of class name and function, like `['OpauthResponseHelper', 'get_first_name']`. It takes the auth response array as an argument. See the example config YAML below for more details.
 
 ### How do I configure the module and its strategies?
 You can put them in your `_config.yml` file. Additionally, as your strategy API details will likely change per domain and thus per environment, you are able to update these using the `Config` API. Here's some examples to help you:
 
-##### `_config.yml` example:
+###### `_config.yml` example:
 ```yml
 ---
 Name: silverstripe-opauth
 After: 'framework/*','cms/*'
 ---
+# see the Opauth docs for the config settings - https://github.com/opauth/opauth/wiki/Opauth-configuration#configuration-array
 OpauthAuthenticator:
+  #Register your strategies here
   enabled_strategies:
     - FacebookStrategy
     - GoogleStrategy
@@ -60,6 +62,7 @@ OpauthAuthenticator:
   opauth_security_iteration: 500
   opauth_security_timeout: '2 minutes'
   opauth_callback_transport: 'session'
+  #Per strategy config
   opauth_strategy_config:
     Facebook:
       app_id: ''
@@ -70,6 +73,7 @@ OpauthAuthenticator:
     Google:
       client_id: ''
       client_secret: ''
+#Configuration for the Identity-Member mapping
 OpauthIdentity:
   member_mapper:
     Facebook:
@@ -89,6 +93,14 @@ OpauthIdentity:
 
 ##### `_config.php` example:
 ```php
+//Register strategies
+Config::inst()->update('OpauthAuthenticator', 'enabled_strategies', array(
+	'FacebookStrategy',
+	'GoogleStrategy',
+	'TwitterStrategy'
+));
+
+//Configure strategies
 Config::inst()->update('OpauthAuthenticator', 'opauth_strategy_config', array(
 	'Facebook' => array(
 		'app_id' => '',
@@ -104,6 +116,7 @@ Config::inst()->update('OpauthAuthenticator', 'opauth_strategy_config', array(
 	)
 ));
 
+//Identity to member mapping settings per strategy
 Config::inst()->update('OpauthIdentity', 'member_mapper', array(
 	'Facebook' => array(
 		'FirstName' => 'info.first_name',
@@ -115,7 +128,7 @@ Config::inst()->update('OpauthIdentity', 'member_mapper', array(
 		'Surname' => array('OpauthResponseHelper', 'get_last_name'),
 		'Locale' => array('OpauthResponseHelper', 'get_twitter_locale'),
 	),
-    'Google' => array(
+	'Google' => array(
 		'FirstName' => 'info.first_name',
 		'Surname' => 'info.last_name',
 		'Email' => 'info.email',
