@@ -6,6 +6,7 @@
  * Used in parsing. Can and should be referenced in _config.yml for helping
  * parse things for member_mapping.
  * @author Will Morgan <@willmorgan>
+ * @copyright Copyright (c) 2013, Better Brief LLP
  */
 class OpauthResponseHelper {
 

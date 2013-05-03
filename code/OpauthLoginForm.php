@@ -7,6 +7,7 @@
  * displaying a button to start the OAuth process with that strategy provider.
  * @author Will Morgan <@willmorgan>
  * @author Dan Hensby <@dhensby>
+ * @copyright Copyright (c) 2013, Better Brief LLP
  */
 class OpauthLoginForm extends LoginForm {
 

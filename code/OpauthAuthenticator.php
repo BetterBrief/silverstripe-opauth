@@ -4,6 +4,7 @@
  * Base authenticator for SilverStripe Opauth module.
  * @author Will Morgan <@willmorgan>
  * @author Dan Hensby <@dhensby>
+ * @copyright Copyright (c) 2013, Better Brief LLP
  */
 class OpauthAuthenticator extends MemberAuthenticator {
 

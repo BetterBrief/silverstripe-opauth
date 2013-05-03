@@ -5,6 +5,7 @@
  * The SS equivalent of "index.php" and "callback.php" in the Opauth package.
  * @author Will Morgan <@willmorgan>
  * @author Dan Hensby <@dhensby>
+ * @copyright Copyright (c) 2013, Better Brief LLP
  */
 class OpauthIdentity extends DataObject {
 
