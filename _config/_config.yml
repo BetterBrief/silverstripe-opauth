@@ -11,4 +11,4 @@ OpauthAuthenticator:
   opauth_callback_transport: 'session'
 Member:
   has_many:
-    - OpauthIdentities: OpauthIdentity
+    OpauthIdentities: OpauthIdentity
