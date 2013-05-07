@@ -86,19 +86,31 @@ class OpauthController extends Controller {
 			}
 		}
 		else {
-			// Create a strong password derived from the response. Random enough?
-			$member->SetPassword = base64_encode(Convert::array2json($response));
-
 			// Check that it passes validation - we might not have full fields
-			if(!$member->validate()) {
-				// Redirect to complete profile
+			$validationResult = $member->validate();
+			if(!$validationResult->valid()) {
+				// Redirect to complete register step by adding in extra info
 			}
 
+			// Associate the identity with the member
 			$member->write();
+			$identity->MemberID = $member->ID;
 			$identity->write();
 		}
 
-		return $this;
+		// Back up the BackURL as Member::logIn regenerates the session
+		$backURL = Session::get('BackURL');
+		$member->logIn();
+
+		// Decide where to go afterwards...
+		if(!empty($backURL)) {
+			$redirectURL = $backURL;
+		}
+		else {
+			$redirectURL = Security::config()->default_login_dest;
+		}
+
+		return $this->redirect($redirectURL);
 	}
 
 	/**
