@@ -11,7 +11,6 @@
 class OpauthRegisterForm extends Form {
 
 	protected
-		$member,
 		$fields,
 		$requiredFields;
 
@@ -21,13 +20,23 @@ class OpauthRegisterForm extends Form {
 	/**
 	 * @param Controller $controller
 	 * @param string $name
-	 * @param Member $member
 	 * @param array $requiredFields
 	 */
-	public function __construct($controller, $name, Member $member, array $requiredFields) {
-		$this->member = $member;
-		$this->requiredFields = $requiredFields;
+	public function __construct($controller, $name, array $requiredFields = null) {
+		if(isset($requiredFields)) {
+			$this->requiredFields = $requiredFields;
+		}
 		parent::__construct($controller, $name, $this->getFields(), $this->getActions(), $this->getValidator());
+	}
+
+	/**
+	 * setRequiredFields
+	 * Resets everything if the fields change
+	 */
+	public function setRequiredFields($fields) {
+		$this->requiredFields = $fields;
+		$this->setValidator($this->getValidator());
+		return $this;
 	}
 
 	/**
@@ -37,15 +46,7 @@ class OpauthRegisterForm extends Form {
 	 * @return FieldList
 	 */
 	public function getFields() {
-		if(!$this->fields) {
-			$memberFields = $this->getFieldSource();
-			$fields = new FieldList();
-			foreach($this->requiredFields as $field) {
-				$fields->push($memberFields->fieldByName($field));
-			}
-			$this->fields = $fields;
-		}
-		return $this->fields;
+		return $this->getFieldSource();
 	}
 
 	/**
@@ -58,8 +59,9 @@ class OpauthRegisterForm extends Form {
 			if(!$fields instanceof FieldList) {
 				throw new InvalidArgumentException('Field source must be callable and return a FieldList');
 			}
+			return $fields;
 		}
-		return $this->member->getCMSFields()->dataFields();
+		return new FieldList(singleton('Member')->getCMSFields()->dataFields());
 	}
 
 	/**
@@ -77,10 +79,14 @@ class OpauthRegisterForm extends Form {
 	}
 
 	/**
-	 * @return Member
+	 * Get actions
+	 * Points to a controller action
+	 * @return FieldList
 	 */
-	public function getMember() {
-		return $this->member;
+	public function getActions() {
+		return new FieldList(array(
+			new FormAction('doCompleteRegister', 'Complete'),
+		));
 	}
 
 	/**
