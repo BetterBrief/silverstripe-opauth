@@ -14,9 +14,9 @@ class OpauthAuthenticator extends MemberAuthenticator {
 		 */
 		$enabled_strategies = array(),
 		/**
-		 * @config string
+		 * @config array The opauth settings array
 		 */
-		$opauth_security_salt,
+		$opauth_settings = array(),
 		/**
 		 * @var Opauth Persistent Opauth instance.
 		 */
@@ -41,12 +41,8 @@ class OpauthAuthenticator extends MemberAuthenticator {
 			array(
 				'path' => OpauthController::get_path(),
 				'callback_url' => OpauthController::get_callback_path(),
-				'security_salt' => $config->opauth_security_salt,
-				'security_iteration' => $config->opauth_security_iteration,
-				'security_timeout' => $config->opauth_security_timeout,
-				'callback_transport' => $config->opauth_callback_transport,
-				'Strategy' => $config->opauth_strategy_config,
 			),
+			$config->opauth_settings,
 			$mergeConfig
 		);
 	}
