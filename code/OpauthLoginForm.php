@@ -116,7 +116,7 @@ class OpauthLoginForm extends LoginForm {
 
 		// Check the strategy is good
 		if(!class_exists($strategy) || $strategy instanceof OpauthStrategy) {
-			throw new InvalidArgumentException('Opauth strategy '.$strategy.' was not found or is not a valid strategy');
+			throw new InvalidArgumentException('Opauth strategy ' . $strategy . ' was not found or is not a valid strategy');
 		}
 
 		return $this->controller->redirect(
