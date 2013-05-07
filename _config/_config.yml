@@ -6,9 +6,10 @@ After: 'framework/*','cms/*'
 # See http://doc.silverstripe.org/framework/en/topics/configuration
 # Caution: Indentation through two spaces, not tabs
 OpauthAuthenticator:
-  opauth_security_iteration: 500
-  opauth_security_timeout: '2 minutes'
-  opauth_callback_transport: 'session'
+  opauth_settings:
+    security_iteration: 500
+    security_timeout: '2 minutes'
+    callback_transport: 'session'
 Member:
   has_many:
     OpauthIdentities: OpauthIdentity

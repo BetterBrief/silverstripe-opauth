@@ -37,10 +37,10 @@ You can find them under the "Available Strategies" heading on the [Opauth homepa
 Alternatively, you can find them in the [bundle package](http://opauth.org/download.php).
 
 ### Where should I put strategies?
-We recommend putting them under `mysite/code/thirdparty`, but it's up to you. Any root level directory that contains a `_config.php` (empty or otherwise) is scanned by the manifest builder.
+We recommend putting them under `mysite/thirdparty`, but it's up to you. Any root level directory that contains a `_config.php` (empty or otherwise) is scanned by the manifest builder.
 
-### Why isn't SilverStripe finding my stratagies in `mysite/code/thirdparty`?
-It could be you're super clever and have a `_manifest_exclude` file in your `thirdparty` folder, preventing it being spidered by SilverStripe's manifest builder. Try moving the stratagies folder to mysite/code/opauth/
+### Why isn't SilverStripe finding my stratagies in `mysite/thirdparty`?
+It could be you're super clever and have a `_manifest_exclude` file in your `thirdparty` folder, preventing it being spidered by SilverStripe's manifest builder. Try moving the stratagies folder to `mysite/code/opauth/` or, if you don't want to do that, you can set the opauth setting `strategy_dir` to be `BASE_PATH . '/mysite/thirdparty'` and Opauth will find them for you.
 
 ### How do I map the API responses to a `Member`?
 You define the `OpauthIdentity` `member_mapper` block in your `_config.yml`. Simply provide a hash map of member fields to dot notated paths of the Opauth response array for simple fields, or if you need to perform some parsing to retrieve the value you want, an array of class name and function, like `['OpauthResponseHelper', 'get_first_name']`. It takes the auth response array as an argument. See the example config YAML below for more details.

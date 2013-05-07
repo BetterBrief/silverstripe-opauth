@@ -46,3 +46,9 @@ Config::inst()->update('OpauthAuthenticator', 'opauth_strategy_config', array(
 	)
 ));
 ```
+
+## Configuring Opauth
+
+As you can see, Opauth takes its own config options, these are set by...
+
+Some of the settings are redundant, such as `strategy_dir` as SilverStripe will auto load the strategies for you.
