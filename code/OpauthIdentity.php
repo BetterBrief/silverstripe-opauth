@@ -100,23 +100,22 @@ class OpauthIdentity extends DataObject {
 		$record = $this->getMemberRecordFromAuth();
 
 		if(empty($record['Email'])) {
-			return new Member();
-		}
-
-		$email = $record['Email'];
-
-		$member = Member::get()->filter('Email', $email)->first();
-
-		if(!$member) {
 			$member = new Member();
 		}
+		else {
+			$member = Member::get()->filter('Email', $record['Email'])->first();
 
-		if($settings['linkOnMatch'] && $member->exists()) {
+			if(!$member) {
+				$member = new Member();
+			}
+		}
+
+		if($settings['linkOnMatch'] && $member->isInDB()) {
 			$this->MemberID = $member->ID;
 		}
 
 		// If this is a new member, give it everything we have.
-		if(!$member->exists()) {
+		if(!$member->isInDB()) {
 			$member->update($record);
 		}
 		// If not, we update it carefully using the settings described above.
