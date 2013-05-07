@@ -23,8 +23,9 @@ It includes:
  * the Opauth core (see below);
  * `OpauthAuthenticator`: intended to be comparable with `MemberAuthenticator`;
  * `OpauthLoginForm`: which offers different ways you can authenticate;
+ * `OpauthRegisterForm`: which, if configured, provides an intermediate step so incomplete `OpauthIdentity`-authenticating members can fill in extra information as required;
  * `OpauthController`: which acts as a negotiator for the communication that strategies undertake;
- * `OpauthIdentity`: intended to give you a service-agnostic interface with which to save Oauth identities in to the `Member` object.
+ * `OpauthIdentity`: which acts as a service-agnostic interface with which to save Oauth identities in to the `Member` object. These are associated with a `Member` upon successful login so that the auth provider's UID and signed response act as a key.
 
 *NB: Opauth's maintainers recommend you include strategies as required, rather than bundling them together.*
 
