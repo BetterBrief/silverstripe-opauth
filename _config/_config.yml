@@ -9,6 +9,3 @@ OpauthAuthenticator:
   opauth_security_iteration: 500
   opauth_security_timeout: '2 minutes'
   opauth_callback_transport: 'session'
-Member:
-  extensions:
-    - OpauthMemberExtension
