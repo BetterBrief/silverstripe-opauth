@@ -215,7 +215,8 @@ class OpauthController extends Controller {
 	 * @return array The response
 	 */
 	protected function getOpauthResponse() {
-		$transportMethod = OpauthAuthenticator::config()->get('opauth_callback_transport');
+		$config = OpauthAuthenticator::get_opauth_config();
+		$transportMethod = $config['callback_transport'];
 		switch($transportMethod) {
 			case 'session':
 				return $this->getResponseFromSession();
