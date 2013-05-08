@@ -14,11 +14,15 @@ class OpauthController extends Controller {
 		$allowed_actions = array(
 			'index',
 			'finished',
+			'profilecompletion',
 			'RegisterForm',
 		),
 		$url_handlers = array(
 			'finished' => 'finished',
 		);
+
+	protected
+		$registerForm;
 
 	/**
 	 * This function only catches the request to pass it straight on.
@@ -69,7 +73,7 @@ class OpauthController extends Controller {
 		$response = $this->getOpauthResponse();
 
 		// Clear the response as it is only to be read once (if Session)
-		Session::clear('opauth');
+		Debug::dump('skipping session clear'); //Session::clear('opauth');
 
 		// Handle all Opauth validation in this handy function
 		try {
@@ -98,16 +102,13 @@ class OpauthController extends Controller {
 			if(!$validationResult->valid()) {
 				// Keep a note of the identity ID
 				Session::set('OpauthIdentityID', $identity->ID);
-				// Redirect to complete register step by adding in extra info
-				return $this->renderWith(array(
-						'OpauthController_register',
-						'Security_register',
-						'Page',
-					),
-					array(
-						'Form' => $this->RegisterForm(null, $member, $validationResult->messageList())
-					)
+				// Set up the register form before it's output
+				$this->RegisterForm()->populateFromSources(
+					$request,
+					$member,
+					$validationResult->messageList()
 				);
+				return $this->profilecompletion();
 			}
 			else {
 				$member->write();
@@ -116,7 +117,7 @@ class OpauthController extends Controller {
 			}
 		}
 
-		$this->loginAndRedirect($member);
+		return $this->loginAndRedirect($member);
 	}
 
 	protected function loginAndRedirect(Member $member) {
@@ -132,32 +133,45 @@ class OpauthController extends Controller {
 			$redirectURL = Security::config()->default_login_dest;
 		}
 
+		// Clear any identity ID
+		Session::set('OpauthIdentityID');
+
 		return $this->redirect($redirectURL);
 	}
 
-	public function RegisterForm(SS_HTTPRequest $request = null, Member $member = null, ValidationResult $result = null) {
-		$form = new OpauthRegisterForm($this, 'RegisterForm', $result);
-
-		$formName = $form->FormName();
-
-		// Hacky again :()
-		if(Session::get("FormInfo.{$formName}.data")) {
-			$form->loadDataFrom(Session::get("FormInfo.{$formName}.data"));
+	public function profilecompletion(SS_HTTPRequest $request = null) {
+		if(!Session::get('OpauthIdentityID')) {
+			$this->redirect('Security/login');
 		}
-		else if(isset($member) && !isset($request)) {
-			$form->loadDataFrom($member);
-		}
-		else if(isset($request)) {
-			$form->loadDataFrom($request->postVars());
-		}
+		// Redirect to complete register step by adding in extra info
+		return $this->renderWith(array(
+				'OpauthController_register',
+				'Security_register',
+				'Page',
+			),
+			array(
+				'Form' => $this->RegisterForm(),
+			)
+		);
+	}
 
-		// Hacky!!!
-		$form->setFormAction(Controller::join_links(
-			self::config()->opauth_path,
-			'RegisterForm'
-		));
+	public function RegisterForm(SS_HTTPRequest $request = null, Member $member = null, $result = null) {
+		if(!$this->registerForm) {
+			$form = new OpauthRegisterForm($this, 'RegisterForm', $result);
 
-		return $form;
+			$form->populateFromSources($request, $member, $result);
+
+			// Set manually the form action due to how routing works
+			$form->setFormAction(Controller::join_links(
+				self::config()->opauth_path,
+				'RegisterForm'
+			));
+			$this->registerForm = $form;
+		}
+		else {
+			$this->registerForm->populateFromSources($request, $member, $result);
+		}
+		return $this->registerForm;
 	}
 
 	public function doCompleteRegister($data, $form, $request) {
@@ -172,7 +186,7 @@ class OpauthController extends Controller {
 			$form->setRequiredFields($errors);
 			// using Form::validate to pass through to the data to the session
 			$form->validate();
-			return $this->redirectBack();
+			return $this->redirect('profilecompletion');
 		}
 		// If valid then write and redirect
 		else {
