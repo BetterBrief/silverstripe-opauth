@@ -54,15 +54,16 @@ After: 'framework/*','cms/*'
 ---
 # see the Opauth docs for the config settings - https://github.com/opauth/opauth/wiki/Opauth-configuration#configuration-array
 OpauthAuthenticator:
-  #Register your strategies here
-  enabled_strategies:
-    - FacebookStrategy
-    - GoogleStrategy
-    - TwitterStrategy
-  opauth_security_salt: 'correct horse battery staple'
-  opauth_security_iteration: 500
-  opauth_security_timeout: '2 minutes'
-  opauth_callback_transport: 'session'
+  opauth_settings:
+    #Register your strategies here
+    Strategy:
+      - FacebookStrategy
+      - GoogleStrategy
+      - TwitterStrategy
+    security_salt: 'correct horse battery staple'
+    security_iteration: 500
+    security_timeout: '2 minutes'
+    callback_transport: 'session'
   #Per strategy config
   opauth_strategy_config:
     Facebook:
@@ -95,10 +96,12 @@ OpauthIdentity:
 ##### `_config.php` example:
 ```php
 //Register strategies
-Config::inst()->update('OpauthAuthenticator', 'enabled_strategies', array(
-	'FacebookStrategy',
-	'GoogleStrategy',
-	'TwitterStrategy'
+Config::inst()->update('OpauthAuthenticator', 'opauth_settings', array(
+  'Strategy' => array(
+    'FacebookStrategy',
+    'GoogleStrategy',
+    'TwitterStrategy',
+  ),
 ));
 
 //Configure strategies
