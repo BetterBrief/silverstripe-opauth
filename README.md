@@ -3,10 +3,19 @@
 ## Introduction
 Uses the [Opauth library](http://opauth.org) for easy drop-in strategies for social login. See their [documentation](https://github.com/opauth/opauth/wiki/)
 
-We intend to release it as a full SilverStripe module that supports Opauth fully in the next few weeks.
-
 ## Current Status
 Beta; undergoing testing
+
+We intend to release it as a full SilverStripe module that supports Opauth fully in the next few weeks.
+
+## How does it work?
+The module provides an additional login form which the developer has control over, that allows users to instantly sign in to your website with an identity provided by any Oauth provider. The providers are each handled by using an `OpauthStrategy`, many of which are freely available. There are strategies for Facebook, Twitter, Google, and many more.
+
+Based on the identity data from the Oauth provider, the module will find or create a new `Member` object based on the provided email address in the identity. This also means a Member can have many Oauth identites linked to a single account; these are saved in to the `OpauthIdentity` object.
+
+If the resultant `Member` generated from the provider's response doesn't have an email address, or any other piece of data you require, there is functionality built in to handle this. You can enforce required fields by extending the `Member::validate` method. If any of these fields are missing from what is found or created, then the user is prompted to fill in these fields before continuing. This allows you to assume a level of data integrity for your member profiles.
+
+Other than that, the user flow is quite simple. Provided all required data is there, the member is logged in with `Member::login` and then redirected to the page they were looking at or the default destination, settable in your config - just like the default `MemberAuthenticator`.
 
 ## Requirements
 
@@ -41,7 +50,9 @@ It could be you're super clever and have a `_manifest_exclude` file in your `thi
 You define the `OpauthIdentity` `member_mapper` block in your `_config.yml`. Simply provide a hash map of member fields to dot notated paths of the Opauth response array for simple fields, or if you need to perform some parsing to retrieve the value you want, an array of class name and function, like `['OpauthResponseHelper', 'get_first_name']`. It takes the auth response array as an argument. See the example config YAML below for more details.
 
 ### How do I configure the module and its strategies?
-You can put them in your `_config.yml` file. Additionally, as your strategy API details will likely change per domain and thus per environment, you are able to update these using the `Config` API. Please see the [Opauth config documentation](https://github.com/opauth/opauth/wiki/Opauth-configuration#configuration-array). Here's some examples to help you:
+All Opauth-specific configuration variables can be put under `opauth_settings` and are passed directly to `Opauth`.
+
+You can put these settomgs in your `_config.yml` file. Additionally, as your strategy API details will likely change per domain and thus per environment, you are able to update these using the `Config` API. Please see the [Opauth config documentation](https://github.com/opauth/opauth/wiki/Opauth-configuration#configuration-array). Here's some examples to help you:
 
 ###### `_config.yml` example:
 ```yml
@@ -88,29 +99,22 @@ OpauthIdentity:
 
 ##### `_config.php` example:
 ```php
-//Register strategies
+//Register and configure strategies
 Config::inst()->update('OpauthAuthenticator', 'opauth_settings', array(
   'Strategy' => array(
-    'FacebookStrategy',
-    'GoogleStrategy',
-    'TwitterStrategy',
+    'Facebook' => array(
+      'app_id' => '',
+      'app_secret' => ''
+    ),
+    'Google' => array(
+      'client_id' => '',
+      'client_secret' => ''
+    ),
+    'Twitter' => array(
+      'key' => '',
+      'secret' => ''
+    ),
   ),
-));
-
-//Configure strategies
-Config::inst()->update('OpauthAuthenticator', 'opauth_strategy_config', array(
-	'Facebook' => array(
-		'app_id' => '',
-		'app_secret' => ''
-	),
-	'Twitter' => array(
-		'key' => '',
-		'secret' => ''
-	),
-	'Google' => array(
-		'client_id' => '',
-		'client_secret' => ''
-	)
 ));
 
 //Identity to member mapping settings per strategy
@@ -133,8 +137,14 @@ Config::inst()->update('OpauthIdentity', 'member_mapper', array(
 	),
 ));
 ```
+
+*NB: As you can see, sometimes the Strategy configuration settings may have inconsistent namings - we can't help with that, sorry!*
+
 ## Documentation
 Please read the [Opauth documentation](https://github.com/opauth/opauth/wiki/) and [our own documentation](docs/en/)
+
+## Raising bugs and suggesting enhancements
+If you find a bug or have a Really Good Idea™, please [raise an issue](https://github.com/BetterBrief/silverstripe-opauth/issues). Better still, if you can fix the bug, then feel free to send in a pull request with the remidial code that ideally respects the coding conventions used thus far.
 
 ## Licence
 ```
