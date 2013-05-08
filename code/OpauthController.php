@@ -191,7 +191,7 @@ class OpauthController extends Controller {
 		// If valid then write and redirect
 		else {
 			$member->write();
-			$identity = $member->ID;
+			$identity->MemberID = $member->ID;
 			$identity->write();
 			return $this->loginAndRedirect($member);
 		}
