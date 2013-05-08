@@ -6,17 +6,14 @@ Uses the [Opauth library](http://opauth.org) for easy drop-in strategies for soc
 We intend to release it as a full SilverStripe module that supports Opauth fully in the next few weeks.
 
 ## Current Status
-Pre-alpha - In development
+Beta; undergoing testing
 
 ## Requirements
 
- * SilverStripe 3.0+
+ * SilverStripe 3.1 (maybe 3.0, but untested so far)
  * At least one Opauth stratagy
 
 ## FAQ
-
-### What version of SilverStripe?
-Requires: SilverStripe 3.1 (maybe 3.0, but untested so far)
 
 ### What does this module include?
 It includes:
