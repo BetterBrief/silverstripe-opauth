@@ -112,7 +112,7 @@ class OpauthLoginForm extends LoginForm {
 			throw new LogicException('Must be called with a strategy handler');
 		}
 		// Trim handleStrategy from the function name:
-		$strategy = substr($funcName, strlen('handleStrategy'));
+		$strategy = substr($funcName, strlen('handleStrategy')) . 'Strategy';
 
 		// Check the strategy is good
 		if(!class_exists($strategy) || $strategy instanceof OpauthStrategy) {
