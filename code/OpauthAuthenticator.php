@@ -19,7 +19,8 @@ class OpauthAuthenticator extends MemberAuthenticator {
 	 * @return array Enabled strategies set in _config
 	 */
 	public static function get_enabled_strategies() {
-		return self::config()->opauth_settings['Strategy'];
+		$strategyConfig = self::config()->opauth_settings['Strategy'];
+		return array_keys($strategyConfig);
 	}
 
 	/**

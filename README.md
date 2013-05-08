@@ -56,25 +56,21 @@ After: 'framework/*','cms/*'
 OpauthAuthenticator:
   opauth_settings:
     #Register your strategies here
+    #Including any extra config
     Strategy:
-      - FacebookStrategy
-      - GoogleStrategy
-      - TwitterStrategy
+      Facebook:
+        app_id: ''
+        app_secret: ''
+      Google:
+        client_id: ''
+        client_secret: ''
+      Twitter:
+        key: ''
+        secret: ''
     security_salt: 'correct horse battery staple'
     security_iteration: 500
     security_timeout: '2 minutes'
     callback_transport: 'session'
-  #Per strategy config
-  opauth_strategy_config:
-    Facebook:
-      app_id: ''
-      app_secret: ''
-    Twitter:
-      key: ''
-      secret: ''
-    Google:
-      client_id: ''
-      client_secret: ''
 #Configuration for the Identity-Member mapping
 OpauthIdentity:
   member_mapper:
