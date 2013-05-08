@@ -69,49 +69,11 @@ class OpauthController extends Controller {
 		$response = $this->getOpauthResponse();
 
 		// Clear the response as it is only to be read once (if Session)
-		Debug::dump('Skipping opauth session clearing');
-		//Session::clear('opauth');
-
-		$response = array(
-			'auth' => array(
-				'provider' => 'Facebook',
-				'uid' => '547752916',
-				'info' => array(
-					'name' => 'Will Morgan',
-					'image' => 'https://graph.facebook.com/547752916/picture?type=square',
-					'nickname' => 'willm0rgan',
-					'first_name' => 'Will',
-					'last_name' => 'Morgan 2',
-					'urls' => array(
-						'facebook' => 'http://www.facebook.com/willm0rgan',
-					),
-				),
-				'credentials' => array(
-					'token' => 'BAAHUME7HW0gBAKgGzHvcTiA8J2xIfmfZAZA4AwYQt2r3n2d3XzWiPxMAu33iLbTOpVctTC9pUUy3IeIMNktiYna4kxopuX2EOW60kadzBG7JVpWGECRHOZCsTZBVRuxnMZA4M8grMd7HOjVV9Bm351SRv3eHXZBQbeK5zVMmEzOiH4QFzjYKggtlNYd53Guzg7joZAFn99o9mLK4JPjXmIgzjsEre5ZCgnQZD',
-					'expires' => '2013-06-30T15:21:35+00:00',
-				),
-				'raw' => array(
-					'id' => '547752916',
-					'name' => 'Will Morgan',
-					'first_name' => 'Will',
-					'last_name' => 'Morgan',
-					'link' => 'http://www.facebook.com/willm0rgan',
-					'username' => 'willm0rgan',
-					'gender' => 'male',
-					'timezone' => 1,
-					'locale' => 'en_GB',
-					'verified' => 1,
-					'updated_time' => '2013-02-04T23:06:37+0000',
-				),
-			),
-			'timestamp' => '2013-05-01T16:13:45+00:00',
-			'signature' => '6aajcs7w3ycksggwok84c80wcoko0ws',
-		);
+		Session::clear('opauth');
 
 		// Handle all Opauth validation in this handy function
 		try {
-			Debug::dump('Skipping validating');
-			//$this->validateOpauthResponse($opauth, $response);
+			$this->validateOpauthResponse($opauth, $response);
 		}
 		catch(Exception $e) {
 			$this->httpError(400, $e->getMessage());
@@ -143,7 +105,7 @@ class OpauthController extends Controller {
 						'Page',
 					),
 					array(
-						'Form' => $this->RegisterForm(null, $member, $validationResult)
+						'Form' => $this->RegisterForm(null, $member, $validationResult->messageList())
 					)
 				);
 			}
@@ -176,7 +138,13 @@ class OpauthController extends Controller {
 	public function RegisterForm(SS_HTTPRequest $request = null, Member $member = null, ValidationResult $result = null) {
 		$form = new OpauthRegisterForm($this, 'RegisterForm', $result);
 
-		if(isset($member)) {
+		$formName = $form->FormName();
+
+		// Hacky again :()
+		if(Session::get("FormInfo.{$formName}.data")) {
+			$form->loadDataFrom(Session::get("FormInfo.{$formName}.data"));
+		}
+		else if(isset($member) && !isset($request)) {
 			$form->loadDataFrom($member);
 		}
 		else if(isset($request)) {
@@ -195,17 +163,23 @@ class OpauthController extends Controller {
 	public function doCompleteRegister($data, $form, $request) {
 		$member = new Member();
 		$form->saveInto($member);
-		if($member->validate()->valid()) {
-			$identityID = Session::get('OpauthIdentityID');
-			$identity = DataObject::get_by_id('OpauthIdentity', $identityID);
+		$identityID = Session::get('OpauthIdentityID');
+		$identity = DataObject::get_by_id('OpauthIdentity', $identityID);
+		$validationResult = $member->validate();
+		// If not valid then we have to manually transpose errors to the form
+		if(!$validationResult->valid()) {
+			$errors = $validationResult->messageList();
+			$form->setRequiredFields($errors);
+			// using Form::validate to pass through to the data to the session
+			$form->validate();
+			return $this->redirectBack();
+		}
+		// If valid then write and redirect
+		else {
 			$member->write();
 			$identity = $member->ID;
 			$identity->write();
-			$this->loginAndRedirect($member);
-		}
-		else {
-			Debug::dump('not valid, whoops.');
-			$this->redirectBack();
+			return $this->loginAndRedirect($member);
 		}
 	}
 
