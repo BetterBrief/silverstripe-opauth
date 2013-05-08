@@ -73,7 +73,7 @@ class OpauthController extends Controller {
 		$response = $this->getOpauthResponse();
 
 		// Clear the response as it is only to be read once (if Session)
-		Debug::dump('skipping session clear'); //Session::clear('opauth');
+		Session::clear('opauth');
 
 		// Handle all Opauth validation in this handy function
 		try {
@@ -225,7 +225,7 @@ class OpauthController extends Controller {
 	 */
 	protected function validateOpauthResponse($opauth, $response) {
 		if(!empty($response['error'])) {
-			throw new InvalidArgumentException((string) $response['error']);
+			throw new InvalidArgumentException(var_export($response['error'], true));
 		}
 
 		// Required components within the response
