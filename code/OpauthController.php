@@ -51,10 +51,8 @@ class OpauthController extends Controller {
 	}
 
 	/**
-	 * Equivalent to "callback.php" in the Opauth package.
-	 * If there is a problem with the response, we throw an HTTP error.
-	 * When done validating, we return back to the Authenticator continue auth.
-	 * @throws SS_HTTPResponse_Exception if any validation errors
+	 * This is executed when the Oauth provider redirects back to us
+	 * Opauth handles everything sent back in this request.
 	 */
 	protected function oauthCallback(SS_HTTPRequest $request) {
 
@@ -66,6 +64,12 @@ class OpauthController extends Controller {
 
 	}
 
+	/**
+	 * Equivalent to "callback.php" in the Opauth package.
+	 * If there is a problem with the response, we throw an HTTP error.
+	 * When done validating, we return back to the Authenticator continue auth.
+	 * @throws SS_HTTPResponse_Exception if any validation errors
+	 */
 	public function finished(SS_HTTPRequest $request) {
 
 		$opauth = OpauthAuthenticator::opauth(false);
@@ -79,8 +83,8 @@ class OpauthController extends Controller {
 		try {
 			$this->validateOpauthResponse($opauth, $response);
 		}
-		catch(Exception $e) {
-			$this->httpError(400, $e->getMessage());
+		catch(OpauthValidationException $e) {
+			return $this->handleOpauthException($e);
 		}
 
 		$identity = OpauthIdentity::factory($response);
@@ -225,7 +229,7 @@ class OpauthController extends Controller {
 	 */
 	protected function validateOpauthResponse($opauth, $response) {
 		if(!empty($response['error'])) {
-			throw new InvalidArgumentException(var_export($response['error'], true));
+			throw new OpauthValidationException('Oauth provider error', 1, $response['error']);
 		}
 
 		// Required components within the response
@@ -251,7 +255,7 @@ class OpauthController extends Controller {
 			$response['signature'],
 			$invalidReason
 		)) {
-			throw new InvalidArgumentException('Invalid auth response: ' . $invalidReason);
+			throw new OpauthValidationException('Invalid auth response', 3, $invalidReason);
 		}
 	}
 
@@ -262,7 +266,7 @@ class OpauthController extends Controller {
 	protected function requireResponseComponents(array $components, $response) {
 		foreach($components as $component) {
 			if(empty($response[$component])) {
-				throw new InvalidArgumentException('Required component "'.$component.'" was missing');
+				throw new OpauthValidationException('Required component missing', 2, $component);
 			}
 		}
 	}
@@ -272,6 +276,43 @@ class OpauthController extends Controller {
 	 */
 	protected function getResponseFromSession() {
 		return Session::get('opauth');
+	}
+
+	/**
+	 * @param OpauthValidationException $e
+	 */
+	protected function handleOpauthException(OpauthValidationException $e) {
+		$data = $e->getData();
+		$loginFormName = 'OpauthLoginForm_LoginForm';
+		switch($e->getCode()) {
+			case 1: // provider error
+				Form::messageForForm(
+					$loginFormName,
+					_t(
+						'OpauthLoginForm.OAUTHFAILURE',
+						'There was a problem logging in with {provider}.',
+						$data
+					),
+					'bad'
+				);
+			break;
+			case 2: // validation error
+			case 3: // invalid auth response
+				Form::messageForForm(
+					$loginFormName,
+					_t(
+						'OpauthLoginForm.RESPONSEVALIDATIONFAILURE',
+						'There was a problem logging in - {message}',
+						array(
+							'message' => $e->getMessage(),
+						)
+					),
+					'bad'
+				);
+			break;
+		}
+		// always redirect to login
+		$this->redirect('Security/login');
 	}
 
 	/**

@@ -1,3 +1,5 @@
 en:
   OpauthAuthenticator:
     TITLE: 'Social Login'
+  OpauthLoginForm:
+    OAUTHFAILURE: 'There was a problem getting a response from {provider}.'
