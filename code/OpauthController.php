@@ -184,12 +184,21 @@ class OpauthController extends Controller {
 		$identityID = Session::get('OpauthIdentityID');
 		$identity = DataObject::get_by_id('OpauthIdentity', $identityID);
 		$validationResult = $member->validate();
+		$existing = Member::get()->filter('Email', $member->Email)->first();
+		$emailCollision = $existing && $existing->exists();
 		// If not valid then we have to manually transpose errors to the form
-		if(!$validationResult->valid()) {
+		if(!$validationResult->valid() || $emailCollision) {
 			$errors = $validationResult->messageList();
 			$form->setRequiredFields($errors);
 			// using Form::validate to pass through to the data to the session
 			$form->validate();
+			// Mandatory check on the email address
+			if($emailCollision) {
+				$form->addErrorMessage('Email', _t(
+					'OpauthRegisterForm.ERROREMAILTAKEN',
+					'It looks like this email has already been used'
+				), 'required');
+			}
 			return $this->redirect('profilecompletion');
 		}
 		// If valid then write and redirect
