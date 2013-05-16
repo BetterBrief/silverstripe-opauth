@@ -37,7 +37,7 @@ class OpauthController extends Controller {
 		$method = $request->param('StrategyMethod');
 
 		if(!isset($strategy)) {
-			$this->redirect('Security/login');
+			return Security::permissionFailure($this);
 		}
 
 		// If there is no method then we redirect (not a callback)
@@ -145,7 +145,7 @@ class OpauthController extends Controller {
 
 	public function profilecompletion(SS_HTTPRequest $request = null) {
 		if(!Session::get('OpauthIdentityID')) {
-			$this->redirect('Security/login');
+			Security::permissionFailure($this);
 		}
 		// Redirect to complete register step by adding in extra info
 		return $this->renderWith(array(
@@ -293,35 +293,30 @@ class OpauthController extends Controller {
 	protected function handleOpauthException(OpauthValidationException $e) {
 		$data = $e->getData();
 		$loginFormName = 'OpauthLoginForm_LoginForm';
+		$message;
 		switch($e->getCode()) {
 			case 1: // provider error
-				Form::messageForForm(
-					$loginFormName,
-					_t(
-						'OpauthLoginForm.OAUTHFAILURE',
-						'There was a problem logging in with {provider}.',
-						$data
-					),
-					'bad'
+				$message = _t(
+					'OpauthLoginForm.OAUTHFAILURE',
+					'There was a problem logging in with {provider}.',
+					$data
 				);
 			break;
 			case 2: // validation error
 			case 3: // invalid auth response
-				Form::messageForForm(
-					$loginFormName,
-					_t(
-						'OpauthLoginForm.RESPONSEVALIDATIONFAILURE',
-						'There was a problem logging in - {message}',
-						array(
-							'message' => $e->getMessage(),
-						)
-					),
-					'bad'
+				$message = _t(
+					'OpauthLoginForm.RESPONSEVALIDATIONFAILURE',
+					'There was a problem logging in - {message}',
+					array(
+						'message' => $e->getMessage(),
+					)
 				);
 			break;
 		}
+		// Set form message, redirect to login with permission failure
+		Form::messageForForm($loginFormName, $message, 'bad');
 		// always redirect to login
-		$this->redirect('Security/login');
+		Security::permissionFailure($this, $message);
 	}
 
 	/**
