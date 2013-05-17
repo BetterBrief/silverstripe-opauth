@@ -96,6 +96,31 @@ class OpauthRegisterForm extends Form {
 		return new RequiredFields($this->requiredFields);
 	}
 
+	/**
+	 * Populates the form somewhat intelligently
+	 * @param SS_HTTPRequest $request Any request
+	 * @param Member $member Any member
+	 * @param array $required Any validation messages
+	 * @return $this
+	 */
+	public function populateFromSources(SS_HTTPRequest $request = null, Member $member = null, array $required = null) {
+		$dataPath = "FormInfo.{$this->FormName()}.data";
+		// Hacky again :(
+		if(Session::get($dataPath)) {
+			$this->loadDataFrom(Session::get($dataPath));
+		}
+		else if($member) {
+			$this->loadDataFrom($member);
+		}
+		else if($request) {
+			$this->loadDataFrom($request->postVars());
+		}
+		if(!empty($required)) {
+			$this->setRequiredFields($required);
+		}
+		return $this;
+	}
+
 }
 
 

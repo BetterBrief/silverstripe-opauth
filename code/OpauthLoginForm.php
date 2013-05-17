@@ -28,10 +28,6 @@ class OpauthLoginForm extends LoginForm {
 		$this->configureBackURL();
 	}
 
-	public function authenticate() {
-		
-	}
-
 	/**
 	 * Handle any backURL. Uses sessions as state gets lost through OAuth flow.
 	 * Use the same session key as MemberLoginForm for x-compat
@@ -112,7 +108,7 @@ class OpauthLoginForm extends LoginForm {
 			throw new LogicException('Must be called with a strategy handler');
 		}
 		// Trim handleStrategy from the function name:
-		$strategy = substr($funcName, strlen('handleStrategy'));
+		$strategy = substr($funcName, strlen('handleStrategy')) . 'Strategy';
 
 		// Check the strategy is good
 		if(!class_exists($strategy) || $strategy instanceof OpauthStrategy) {
@@ -125,6 +121,14 @@ class OpauthLoginForm extends LoginForm {
 				OpauthAuthenticator::get_strategy_segment($strategy)
 			)
 		);
+	}
+
+	/**
+	 * The authenticator name, used in templates
+	 * @return string
+	 */
+	public function getAuthenticatorName() {
+		return OpauthAuthenticator::get_name();
 	}
 
 }

@@ -14,11 +14,12 @@ class OpauthController extends Controller {
 		$allowed_actions = array(
 			'index',
 			'finished',
+			'profilecompletion',
 			'RegisterForm',
-		),
-		$url_handlers = array(
-			'finished' => 'finished',
 		);
+
+	protected
+		$registerForm;
 
 	/**
 	 * This function only catches the request to pass it straight on.
@@ -33,13 +34,15 @@ class OpauthController extends Controller {
 		$method = $request->param('StrategyMethod');
 
 		if(!isset($strategy)) {
-			$this->redirect('Security/login');
+			return $this->redirect(
+				Config::inst()->get('Security', 'login_url')
+			);
 		}
 
 		// If there is no method then we redirect (not a callback)
 		if(!isset($method)) {
 			// Redirects:
-			OpauthAuthenticator::opauth(true);
+			return OpauthAuthenticator::opauth(true);
 		}
 		else {
 			return $this->oauthCallback($request);
@@ -47,21 +50,27 @@ class OpauthController extends Controller {
 	}
 
 	/**
-	 * Equivalent to "callback.php" in the Opauth package.
-	 * If there is a problem with the response, we throw an HTTP error.
-	 * When done validating, we return back to the Authenticator continue auth.
-	 * @throws SS_HTTPResponse_Exception if any validation errors
+	 * This is executed when the Oauth provider redirects back to us
+	 * Opauth handles everything sent back in this request.
 	 */
 	protected function oauthCallback(SS_HTTPRequest $request) {
 
 		// Set up and run opauth with the correct params from the strategy:
-		$opauth = OpauthAuthenticator::opauth(true, array(
+		OpauthAuthenticator::opauth(true, array(
 			'strategy'	=> $request->param('Strategy'),
 			'action'	=> $request->param('StrategyMethod'),
 		));
 
 	}
 
+	/**
+	 * Equivalent to "callback.php" in the Opauth package.
+	 * If there is a problem with the response, we throw an HTTP error.
+	 * When done validating, we return back to the Authenticator continue auth.
+	 * If a used doesn't validate, they are sent on to a register form to amend
+	 * their details
+	 * @throws SS_HTTPResponse_Exception if any validation errors
+	 */
 	public function finished(SS_HTTPRequest $request) {
 
 		$opauth = OpauthAuthenticator::opauth(false);
@@ -69,52 +78,14 @@ class OpauthController extends Controller {
 		$response = $this->getOpauthResponse();
 
 		// Clear the response as it is only to be read once (if Session)
-		Debug::dump('Skipping opauth session clearing');
-		//Session::clear('opauth');
-
-		$response = array(
-			'auth' => array(
-				'provider' => 'Facebook',
-				'uid' => '547752916',
-				'info' => array(
-					'name' => 'Will Morgan',
-					'image' => 'https://graph.facebook.com/547752916/picture?type=square',
-					'nickname' => 'willm0rgan',
-					'first_name' => 'Will',
-					'last_name' => 'Morgan 2',
-					'urls' => array(
-						'facebook' => 'http://www.facebook.com/willm0rgan',
-					),
-				),
-				'credentials' => array(
-					'token' => 'BAAHUME7HW0gBAKgGzHvcTiA8J2xIfmfZAZA4AwYQt2r3n2d3XzWiPxMAu33iLbTOpVctTC9pUUy3IeIMNktiYna4kxopuX2EOW60kadzBG7JVpWGECRHOZCsTZBVRuxnMZA4M8grMd7HOjVV9Bm351SRv3eHXZBQbeK5zVMmEzOiH4QFzjYKggtlNYd53Guzg7joZAFn99o9mLK4JPjXmIgzjsEre5ZCgnQZD',
-					'expires' => '2013-06-30T15:21:35+00:00',
-				),
-				'raw' => array(
-					'id' => '547752916',
-					'name' => 'Will Morgan',
-					'first_name' => 'Will',
-					'last_name' => 'Morgan',
-					'link' => 'http://www.facebook.com/willm0rgan',
-					'username' => 'willm0rgan',
-					'gender' => 'male',
-					'timezone' => 1,
-					'locale' => 'en_GB',
-					'verified' => 1,
-					'updated_time' => '2013-02-04T23:06:37+0000',
-				),
-			),
-			'timestamp' => '2013-05-01T16:13:45+00:00',
-			'signature' => '6aajcs7w3ycksggwok84c80wcoko0ws',
-		);
+		Session::clear('opauth');
 
 		// Handle all Opauth validation in this handy function
 		try {
-			Debug::dump('Skipping validating');
-			//$this->validateOpauthResponse($opauth, $response);
+			$this->validateOpauthResponse($opauth, $response);
 		}
-		catch(Exception $e) {
-			$this->httpError(400, $e->getMessage());
+		catch(OpauthValidationException $e) {
+			return $this->handleOpauthException($e);
 		}
 
 		$identity = OpauthIdentity::factory($response);
@@ -136,16 +107,13 @@ class OpauthController extends Controller {
 			if(!$validationResult->valid()) {
 				// Keep a note of the identity ID
 				Session::set('OpauthIdentityID', $identity->ID);
-				// Redirect to complete register step by adding in extra info
-				return $this->renderWith(array(
-						'OpauthController_register',
-						'Security_register',
-						'Page',
-					),
-					array(
-						'Form' => $this->RegisterForm(null, $member, $validationResult)
-					)
+				// Set up the register form before it's output
+				$this->RegisterForm()->populateFromSources(
+					$request,
+					$member,
+					$validationResult->messageList()
 				);
+				return $this->profilecompletion();
 			}
 			else {
 				$member->write();
@@ -154,9 +122,12 @@ class OpauthController extends Controller {
 			}
 		}
 
-		$this->loginAndRedirect($member);
+		return $this->loginAndRedirect($member);
 	}
 
+	/**
+	 * @todo Document
+	 */
 	protected function loginAndRedirect(Member $member) {
 		// Back up the BackURL as Member::logIn regenerates the session
 		$backURL = Session::get('BackURL');
@@ -170,42 +141,89 @@ class OpauthController extends Controller {
 			$redirectURL = Security::config()->default_login_dest;
 		}
 
+		// Clear any identity ID
+		Session::clear('OpauthIdentityID');
+
 		return $this->redirect($redirectURL);
 	}
 
-	public function RegisterForm(SS_HTTPRequest $request = null, Member $member = null, ValidationResult $result = null) {
-		$form = new OpauthRegisterForm($this, 'RegisterForm', $result);
-
-		if(isset($member)) {
-			$form->loadDataFrom($member);
+	/**
+	 * @todo Document
+	 */
+	public function profilecompletion(SS_HTTPRequest $request = null) {
+		//if there is no identity in the session, something's gone wrong, send
+		// them to login
+		if(!Session::get('OpauthIdentityID')) {
+			return $this->redirect(
+				Config::inst()->get('Security', 'login_url')
+			);
 		}
-		else if(isset($request)) {
-			$form->loadDataFrom($request->postVars());
-		}
-
-		// Hacky!!!
-		$form->setFormAction(Controller::join_links(
-			self::config()->opauth_path,
-			'RegisterForm'
-		));
-
-		return $form;
+		// Redirect to complete register step by adding in extra info
+		return $this->renderWith(array(
+				'OpauthController_register',
+				'Security_register',
+				'Page',
+			),
+			array(
+				'Form' => $this->RegisterForm(),
+			)
+		);
 	}
 
+	/**
+	 * @todo Document
+	 */
+	public function RegisterForm(SS_HTTPRequest $request = null, Member $member = null, $result = null) {
+		if(!$this->registerForm) {
+			$form = new OpauthRegisterForm($this, 'RegisterForm', $result);
+
+			$form->populateFromSources($request, $member, $result);
+
+			// Set manually the form action due to how routing works
+			$form->setFormAction(Controller::join_links(
+				self::config()->opauth_path,
+				'RegisterForm'
+			));
+			$this->registerForm = $form;
+		}
+		else {
+			$this->registerForm->populateFromSources($request, $member, $result);
+		}
+		return $this->registerForm;
+	}
+
+	/**
+	 * @todo Document
+	 */
 	public function doCompleteRegister($data, $form, $request) {
 		$member = new Member();
 		$form->saveInto($member);
-		if($member->validate()->valid()) {
-			$identityID = Session::get('OpauthIdentityID');
-			$identity = DataObject::get_by_id('OpauthIdentity', $identityID);
-			$member->write();
-			$identity = $member->ID;
-			$identity->write();
-			$this->loginAndRedirect($member);
+		$identityID = Session::get('OpauthIdentityID');
+		$identity = OpauthIdentity::get()->byID($identityID);
+		$validationResult = $member->validate();
+		$existing = Member::get()->filter('Email', $member->Email)->first();
+		$emailCollision = $existing && $existing->exists();
+		// If not valid then we have to manually transpose errors to the form
+		if(!$validationResult->valid() || $emailCollision) {
+			$errors = $validationResult->messageList();
+			$form->setRequiredFields($errors);
+			// using Form::validate to pass through to the data to the session
+			$form->validate();
+			// Mandatory check on the email address
+			if($emailCollision) {
+				$form->addErrorMessage('Email', _t(
+					'OpauthRegisterForm.ERROREMAILTAKEN',
+					'It looks like this email has already been used'
+				), 'required');
+			}
+			return $this->redirect('profilecompletion');
 		}
+		// If valid then write and redirect
 		else {
-			Debug::dump('not valid, whoops.');
-			$this->redirectBack();
+			$member->write();
+			$identity->MemberID = $member->ID;
+			$identity->write();
+			return $this->loginAndRedirect($member);
 		}
 	}
 
@@ -215,7 +233,8 @@ class OpauthController extends Controller {
 	 * @return array The response
 	 */
 	protected function getOpauthResponse() {
-		$transportMethod = OpauthAuthenticator::config()->get('opauth_callback_transport');
+		$config = OpauthAuthenticator::get_opauth_config();
+		$transportMethod = $config['callback_transport'];
 		switch($transportMethod) {
 			case 'session':
 				return $this->getResponseFromSession();
@@ -236,7 +255,7 @@ class OpauthController extends Controller {
 	 */
 	protected function validateOpauthResponse($opauth, $response) {
 		if(!empty($response['error'])) {
-			throw new InvalidArgumentException((string) $response['error']);
+			throw new OpauthValidationException('Oauth provider error', 1, $response['error']);
 		}
 
 		// Required components within the response
@@ -262,7 +281,7 @@ class OpauthController extends Controller {
 			$response['signature'],
 			$invalidReason
 		)) {
-			throw new InvalidArgumentException('Invalid auth response: ' . $invalidReason);
+			throw new OpauthValidationException('Invalid auth response', 3, $invalidReason);
 		}
 	}
 
@@ -273,7 +292,7 @@ class OpauthController extends Controller {
 	protected function requireResponseComponents(array $components, $response) {
 		foreach($components as $component) {
 			if(empty($response[$component])) {
-				throw new InvalidArgumentException('Required component "'.$component.'" was missing');
+				throw new OpauthValidationException('Required component missing', 2, $component);
 			}
 		}
 	}
@@ -283,6 +302,45 @@ class OpauthController extends Controller {
 	 */
 	protected function getResponseFromSession() {
 		return Session::get('opauth');
+	}
+
+	/**
+	 * @param OpauthValidationException $e
+	 */
+	protected function handleOpauthException(OpauthValidationException $e) {
+		$data = $e->getData();
+		$loginFormName = 'OpauthLoginForm_LoginForm';
+		switch($e->getCode()) {
+			case 1: // provider error
+				Form::messageForForm(
+					$loginFormName,
+					_t(
+						'OpauthLoginForm.OAUTHFAILURE',
+						'There was a problem logging in with {provider}.',
+						$data
+					),
+					'bad'
+				);
+			break;
+			case 2: // validation error
+			case 3: // invalid auth response
+				Form::messageForForm(
+					$loginFormName,
+					_t(
+						'OpauthLoginForm.RESPONSEVALIDATIONFAILURE',
+						'There was a problem logging in - {message}',
+						array(
+							'message' => $e->getMessage(),
+						)
+					),
+					'bad'
+				);
+			break;
+		}
+		// always redirect to login
+		$this->redirect(
+			Config::inst()->get('Security', 'login_url')
+		);
 	}
 
 	/**

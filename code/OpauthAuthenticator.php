@@ -2,6 +2,11 @@
 
 /**
  * Base authenticator for SilverStripe Opauth module.
+ *
+ * This authenticator is used to log users into their accounts using the opauth
+ * code. Users can log in with any enabled strategy so long as they have it
+ * attached to their account.
+ *
  * @author Will Morgan <@willmorgan>
  * @author Dan Hensby <@dhensby>
  * @copyright Copyright (c) 2013, Better Brief LLP
@@ -10,28 +15,28 @@ class OpauthAuthenticator extends MemberAuthenticator {
 
 	private static
 		/**
-		 * @config array The enabled strategy classes for Opauth
-		 */
-		$enabled_strategies = array(),
-		/**
-		 * @config array The opauth settings array
-		 */
-		$opauth_settings = array(),
-		/**
 		 * @var Opauth Persistent Opauth instance.
 		 */
 		$opauth;
 
 	/**
 	 * get_enabled_strategies
-	 * @return array Enabled strategies set in _config
+	 *
+	 * Get an array of all the enbled strategies
+	 *
+	 * @return array Enabled strategies as set in _config
 	 */
 	public static function get_enabled_strategies() {
-		return self::config()->enabled_strategies;
+		$strategyConfig = self::config()->opauth_settings['Strategy'];
+		return array_keys($strategyConfig);
 	}
 
 	/**
 	 * get_opauth_config
+	 *
+	 * A way to get the opauth settings with  some manual overrides, this can be
+	 * used if you know you want to override the defaults at run time.
+	 *
 	 * @param array Any extra overrides
 	 * @return array Config for use with Opauth
 	 */
@@ -49,6 +54,11 @@ class OpauthAuthenticator extends MemberAuthenticator {
 
 	/**
 	 * opauth
+	 *
+	 * Get the opauth instance
+	 *
+	 * @uses self::get_opauth_config()
+	 *
 	 * @param boolean $autoRun Should Opauth auto run? Default: false
 	 * @return Opauth The Opauth instance. Isn't it easy to typo this as Opeth?
 	 */
@@ -69,6 +79,8 @@ class OpauthAuthenticator extends MemberAuthenticator {
 	}
 
 	/**
+	 * Create the login form.
+	 *
 	 * @return OpauthLoginForm
 	 */
 	public static function get_login_form(Controller $controller) {

@@ -1,0 +1,23 @@
+{
+	"name": "betterbrief/silverstripe-opauth",
+	"type": "silverstripe-module",
+	"description": "SilverStripe 3.1 OpAuth module. See: http://opauth.org/",
+	"keywords": ["silverstripe", "social", "opauth", "oauth", "login"],
+	"homepage": "https://github.com/BetterBrief/silverstripe-opauth",
+	"license": "BSD",
+	"authors": [
+		{
+			"name": "Will Morgan",
+			"homepage": "http://twitter.com/willmorgan",
+			"role": "Lead Developer"
+		},
+		{
+			"name": "Dan Hensby",
+			"homepage": "https://github.com/dhensby",
+			"role": "Code Scrutinizer"
+		}
+	],
+	"require": {
+		"php": ">=5.3.0"
+	}
+}

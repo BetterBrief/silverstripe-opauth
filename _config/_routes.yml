@@ -2,10 +2,11 @@
 Name: opauthroutes
 After: framework/routes#rootroutes
 ---
-# Config weirdness - confusing.
+# Config weirdness - confusing. - Setting the opauth endpoint
 # Remember to replicate this path with no slashes in the Director rules.
 OpauthController:
   opauth_path: '/opauth/'
+# The opauth rules
 Director:
   rules:
     'opauth/strategy/$Strategy/$StrategyMethod': 'OpauthController'

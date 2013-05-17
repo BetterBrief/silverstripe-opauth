@@ -6,7 +6,7 @@ Uses the [Opauth library](http://opauth.org) for easy drop-in strategies for soc
 We intend to release it as a full SilverStripe module that supports Opauth fully in the next few weeks.
 
 ## Current Status
-Pre-alpha - In development
+Beta; undergoing testing
 
 ## Requirements
 
@@ -142,7 +142,17 @@ Config::inst()->update('OpauthIdentity', 'member_mapper', array(
 
 ## Licence
 
-<a rel="license" href="http://creativecommons.org/licenses/by/2.0/uk/deed.en"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by/2.0/uk/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">SilverStripe Opauth Module</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.betterbrief.co.uk/" property="cc:attributionName" rel="cc:attributionURL">Better Brief LLP</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/2.0/uk/deed.en">Creative Commons Attribution 2.0 UK: England &amp; Wales License</a>.<br />Based on a work at <a xmlns:dct="http://purl.org/dc/terms/" href="https://github.com/BetterBrief/silverstripe-opauth" rel="dct:source">https://github.com/BetterBrief/silverstripe-opauth</a>.
+```
+Copyright (c) 2013, Better Brief LLP
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+Neither the name of the Better Brief LLP nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
 
 ## Attribution
  * Opauth available under MIT licence by U-Zyn Chua (http://uzyn.com) Copyright © 2012-2013

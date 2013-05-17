@@ -2,14 +2,14 @@
 Name: silverstripe-opauth
 After: 'framework/*','cms/*'
 ---
-# YAML configuration for SilverStripe
-# See http://doc.silverstripe.org/framework/en/topics/configuration
-# Caution: Indentation through two spaces, not tabs
+# Add some basic opauth settngs
 OpauthAuthenticator:
   opauth_settings:
     security_iteration: 500
     security_timeout: '2 minutes'
     callback_transport: 'session'
+# Add many identities to a member, this allows a Member to login to the same
+# account with many strategies
 Member:
   has_many:
     OpauthIdentities: OpauthIdentity

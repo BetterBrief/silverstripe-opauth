@@ -2,7 +2,7 @@
 
 /**
  * OpauthIdentity
- * The SS equivalent of "index.php" and "callback.php" in the Opauth package.
+ * Relates a Member to many identities provided by the thirdparty authenticators
  * @author Will Morgan <@willmorgan>
  * @author Dan Hensby <@dhensby>
  * @copyright Copyright (c) 2013, Better Brief LLP
@@ -45,12 +45,10 @@ class OpauthIdentity extends DataObject {
 
 		$auth = $oaResponse['auth'];
 
-		$do = OpauthIdentity::get()->filter(
-			array(
-				'Provider' => $auth['provider'],
-				'UID' => $auth['uid'],
-			)
-		)->first();
+		$do = OpauthIdentity::get()->filter(array(
+			'Provider' => $auth['provider'],
+			'UID' => $auth['uid'],
+		))->first();
 
 		if(!$do || !$do->exists()) {
 			$do = new OpauthIdentity();
@@ -146,6 +144,7 @@ class OpauthIdentity extends DataObject {
 	}
 
 	/**
+	 * @todo Document
 	 * @param array $auth
 	 */
 	public function setAuthSource($auth) {
@@ -155,6 +154,7 @@ class OpauthIdentity extends DataObject {
 	}
 
 	/**
+	 * @todo Document
 	 * @return array The mapping arrangement from auth response to Member.
 	 */
 	public function getMemberMapper() {
