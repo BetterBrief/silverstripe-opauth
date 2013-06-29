@@ -23,6 +23,11 @@ class OpauthLoginForm extends LoginForm {
 		 */
 		$authenticator_class = 'OpauthAuthenticator';
 
+	private static
+		$allowed_actions = array(
+			'httpSubmission',
+		);
+
 	public function __construct($controller, $name) {
 		parent::__construct($controller, $name, $this->getFields(), $this->getActions());
 		$this->configureBackURL();
