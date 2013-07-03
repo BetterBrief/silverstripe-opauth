@@ -138,7 +138,7 @@ class OpauthController extends Controller {
 		}
 
 		// Clear any identity ID
-		Session::set('OpauthIdentityID');
+		Session::clear('OpauthIdentityID');
 
 		return $this->redirect($redirectURL);
 	}
