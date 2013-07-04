@@ -127,6 +127,14 @@ class OpauthController extends Controller {
 	protected function loginAndRedirect(Member $member) {
 		// Back up the BackURL as Member::logIn regenerates the session
 		$backURL = Session::get('BackURL');
+
+		// Check if we can log in:
+		$canLogIn = $member->canLogIn();
+
+		if(!$canLogIn->valid()) {
+			Security::permissionFailure($this, $canLogIn->message());
+			return;
+		}
 		$member->logIn();
 
 		// Decide where to go afterwards...
