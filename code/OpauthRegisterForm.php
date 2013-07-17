@@ -118,7 +118,6 @@ class OpauthRegisterForm extends Form {
 		if(!empty($required)) {
 			$this->setRequiredFields($required);
 		}
-		$this->mockErrors();
 		return $this;
 	}
 
@@ -128,6 +127,13 @@ class OpauthRegisterForm extends Form {
 	 */
 	public function mockErrors() {
 		$this->validate();
+	}
+
+	public function loadDataFrom($data, $mergeStrategy = 0, $fieldList = null) {
+		$return = parent::loadDataFrom($data, $mergeStrategy, $fieldList);
+		$data = $this->getData();
+		Session::set("FormInfo.{$this->FormName()}.data", $this->getData());
+		return $return;
 	}
 
 }
