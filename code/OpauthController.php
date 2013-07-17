@@ -107,12 +107,10 @@ class OpauthController extends Controller {
 				// Keep a note of the identity ID
 				Session::set('OpauthIdentityID', $identity->ID);
 				// Set up the register form before it's output
-				$this->RegisterForm()->populateFromSources(
-					$request,
-					$member,
-					$validationResult->messageList()
-				);
-				return $this->profilecompletion();
+				$regForm = $this->RegisterForm();
+				$regForm->loadDataFrom($member);
+				$regForm->validate();
+				return $this->redirect($this->Link('profilecompletion'));
 			}
 			else {
 				$member->write();
@@ -120,7 +118,6 @@ class OpauthController extends Controller {
 				$identity->write();
 			}
 		}
-
 		return $this->loginAndRedirect($member);
 	}
 
@@ -168,11 +165,9 @@ class OpauthController extends Controller {
 	}
 
 	public function RegisterForm(SS_HTTPRequest $request = null, Member $member = null, $result = null) {
-		if(!$this->registerForm) {
+		if(!isset($this->registerForm)) {
 			$form = new OpauthRegisterForm($this, 'RegisterForm', $result);
-
 			$form->populateFromSources($request, $member, $result);
-
 			// Set manually the form action due to how routing works
 			$form->setFormAction(Controller::join_links(
 				self::config()->opauth_path,
@@ -198,8 +193,6 @@ class OpauthController extends Controller {
 		if(!$validationResult->valid() || $emailCollision) {
 			$errors = $validationResult->messageList();
 			$form->setRequiredFields($errors);
-			// using Form::validate to pass through to the data to the session
-			$form->validate();
 			// Mandatory check on the email address
 			if($emailCollision) {
 				$form->addErrorMessage('Email', _t(
@@ -333,6 +326,13 @@ class OpauthController extends Controller {
 	 */
 	protected function getResponseFromRequest($method) {
 		return unserialize(base64_decode($this->request->{$method.'Var'}('opauth')));
+	}
+
+	public function Link($action = null) {
+		return Controller::join_links(
+			self::config()->opauth_path,
+			$action
+		);
 	}
 
 	/**

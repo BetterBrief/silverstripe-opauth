@@ -93,7 +93,7 @@ class OpauthRegisterForm extends Form {
 	 * @return RequiredFields
 	 */
 	public function getValidator() {
-		return new RequiredFields($this->requiredFields);
+		return new OpauthValidator($this->requiredFields);
 	}
 
 	/**
@@ -118,9 +118,16 @@ class OpauthRegisterForm extends Form {
 		if(!empty($required)) {
 			$this->setRequiredFields($required);
 		}
+		$this->mockErrors();
 		return $this;
 	}
 
+	/**
+	 * mockErrors
+	 * Uses a very nasty trick to dynamically create some required field errors
+	 */
+	public function mockErrors() {
+		$this->validate();
+	}
+
 }
-
-

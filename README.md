@@ -13,7 +13,7 @@ The module provides an additional login form which the developer has control ove
 
 Based on the identity data from the Oauth provider, the module will find or create a new `Member` object based on the provided email address in the identity. This also means a Member can have many Oauth identites linked to a single account; these are saved in to the `OpauthIdentity` object.
 
-If the resultant `Member` generated from the provider's response doesn't have an email address, or any other piece of data you require, there is functionality built in to handle this. You can enforce required fields by extending the `Member::validate` method. If any of these fields are missing from what is found or created, then the user is prompted to fill in these fields before continuing. This allows you to assume a level of data integrity for your member profiles.
+If the resultant `Member` generated from the provider's response doesn't have an email address, or any other piece of data you require, there is functionality built in to handle this. You can enforce required fields, or any other kind of validation, by setting the `OpauthValidator`'s `custom_validator` property to the class name of the validator you require.
 
 Other than that, the user flow is quite simple. Provided all required data is there, the member is logged in with `Member::login` and then redirected to the page they were looking at or the default destination, settable in your config - just like the default `MemberAuthenticator`.
 
