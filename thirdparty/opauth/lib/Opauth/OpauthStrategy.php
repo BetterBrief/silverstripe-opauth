@@ -375,6 +375,15 @@ class OpauthStrategy{
 
 		$stream = array_merge($options, $stream);
 
+		if(extension_loaded('curl')) {
+			$curlOpts = array(
+				CURLOPT_POST => true,
+				CURLOPT_POSTFIELDS => $stream['http']['content'],
+				CURLOPT_HTTPHEADER => $stream['http']['header'],
+			);
+			return self::curlHttpRequest($url, $curlOpts, $responseHeaders);
+		}
+
 		return self::httpRequest($url, $stream, $responseHeaders);	
 	}
 	
@@ -394,8 +403,8 @@ class OpauthStrategy{
 	 * @return string Content resulted from request, without headers
 	 */
 	public static function httpRequest($url, $options = null, &$responseHeaders = null){
-		if(function_exists('curl_version')) {
-			return static::curlHttpRequest($url, $options, $responseHeaders);
+		if(extension_loaded('curl')) {
+			return self::curlHttpRequest($url, $options, $responseHeaders);
 		}
 		$context = null;
 		if (!empty($options) && is_array($options)){
