@@ -394,6 +394,9 @@ class OpauthStrategy{
 	 * @return string Content resulted from request, without headers
 	 */
 	public static function httpRequest($url, $options = null, &$responseHeaders = null){
+		if(function_exists('curl_version')) {
+			return static::curlHttpRequest($url, $options, $responseHeaders);
+		}
 		$context = null;
 		if (!empty($options) && is_array($options)){
 			$context = stream_context_create($options);
@@ -405,6 +408,23 @@ class OpauthStrategy{
 		return $content;
 	}
 	
+	protected static function curlHttpRequest($url, $options = null, &$responseHeaders = null) {
+		$ch = curl_init($url);
+		// set required options first (user generated might fail)
+		curl_setopt_array($ch, array(
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_HEADER => true,
+			CURLOPT_SSL_VERIFYPEER => false,
+		));
+		// @todo: do something with the options (curl != stream_context_create)
+		if(!empty($options)) {
+			curl_setopt_array($ch, $options);
+		}
+		$response = curl_exec($ch);
+		list($responseHeaders, $content) = explode("\r\n\r\n", $response, 2);
+		return $content;
+	}
+
 	/**
 	* Recursively converts object into array
 	* Basically get_object_vars, but recursive.
