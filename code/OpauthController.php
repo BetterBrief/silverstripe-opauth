@@ -372,6 +372,7 @@ class OpauthController extends ContentController {
 		if($this->action == 'profilecompletion') {
 			return _t('OpauthController.PROFILECOMPLETIONTITLE', 'Complete your profile');
 		}
+		return _t('OpauthController.TITLE', 'Social Login');
 	}
 
 	public function Form() {

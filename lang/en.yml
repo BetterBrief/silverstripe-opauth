@@ -6,4 +6,5 @@ en:
   OpauthRegisterForm:
     ERROREMAILTAKEN: 'It looks like this email has already been used'
   OpauthController:
+    TITLE: 'Social login'
     PROFILECOMPLETIONTITLE: 'Complete your profile to register'
