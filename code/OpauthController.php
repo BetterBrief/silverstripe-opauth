@@ -8,7 +8,7 @@
  * @author Dan Hensby <@dhensby>
  * @copyright Copyright (c) 2013, Better Brief LLP
  */
-class OpauthController extends Controller {
+class OpauthController extends ContentController {
 
 	private static
 		$allowed_actions = array(
@@ -23,6 +23,16 @@ class OpauthController extends Controller {
 
 	protected
 		$registerForm;
+
+	/**
+	 * Fake a Page_Controller by using that class as a failover
+	 */
+	public function __construct($dataRecord = null) {
+		if(class_exists('Page_Controller')) {
+			$dataRecord = new Page_Controller($dataRecord);
+		}
+		parent::__construct($dataRecord);
+	}
 
 	/**
 	 * This function only catches the request to pass it straight on.
@@ -109,6 +119,7 @@ class OpauthController extends Controller {
 				// Set up the register form before it's output
 				$regForm = $this->RegisterForm();
 				$regForm->loadDataFrom($member);
+				$regForm->setSessionData($member);
 				$regForm->validate();
 				return $this->redirect($this->Link('profilecompletion'));
 			}
@@ -157,9 +168,6 @@ class OpauthController extends Controller {
 				'OpauthController_register',
 				'Security_register',
 				'Page',
-			),
-			array(
-				'Form' => $this->RegisterForm(),
 			)
 		);
 	}
@@ -358,4 +366,17 @@ class OpauthController extends Controller {
 			'finished/'
 		);
 	}
+
+////**** Template variables ****////
+	function Title() {
+		if($this->action == 'profilecompletion') {
+			return _t('OpauthController.PROFILECOMPLETIONTITLE', 'Complete your profile');
+		}
+	}
+
+	public function Form() {
+		return $this->RegisterForm();
+	}
+////**** END Template variables ****////
+
 }

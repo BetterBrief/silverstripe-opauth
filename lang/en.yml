@@ -5,3 +5,5 @@ en:
     OAUTHFAILURE: 'There was a problem getting a response from {provider}.'
   OpauthRegisterForm:
     ERROREMAILTAKEN: 'It looks like this email has already been used'
+  OpauthController:
+    PROFILECOMPLETIONTITLE: 'Complete your profile to register'
