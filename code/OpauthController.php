@@ -165,8 +165,8 @@ class OpauthController extends ContentController {
 		}
 		// Redirect to complete register step by adding in extra info
 		return $this->renderWith(array(
-				'OpauthController_register',
-				'Security_register',
+				'OpauthController_profilecompletion',
+				'Security_profilecompletion',
 				'Page',
 			)
 		);
