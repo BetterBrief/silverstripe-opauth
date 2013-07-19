@@ -16,7 +16,7 @@ class OpauthValidator extends RequiredFields {
 			$custom->setForm($this->form);
 			$customValid = $custom->php($data);
 			if(!$customValid) {
-				if(!is_array($this->errors)) {
+				if($requiredValid) {
 					$this->errors = array();
 				}
 				$this->errors = array_merge($this->errors, $custom->errors);
