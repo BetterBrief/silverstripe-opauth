@@ -27,6 +27,9 @@ class OpauthRegisterForm extends Form {
 			$this->requiredFields = $requiredFields;
 		}
 		parent::__construct($controller, $name, $this->getFields(), $this->getActions(), $this->getValidator());
+		// Manually call extensions here as Object must first construct extensions
+		$this->extend('updateFields', $this->fields);
+		$this->extend('updateActions', $this->actions);
 	}
 
 	/**
@@ -46,7 +49,9 @@ class OpauthRegisterForm extends Form {
 	 * @return FieldList
 	 */
 	public function getFields() {
-		return $this->getFieldSource();
+		$fields = $this->getFieldSource();
+		$this->extend('updateFields', $fields);
+		return $fields;
 	}
 
 	/**
@@ -84,9 +89,11 @@ class OpauthRegisterForm extends Form {
 	 * @return FieldList
 	 */
 	public function getActions() {
-		return new FieldList(array(
+		$actions = new FieldList(array(
 			new FormAction('doCompleteRegister', 'Complete'),
 		));
+		$results = $this->extend('updateActions', $actions);
+		return $actions;
 	}
 
 	/**
