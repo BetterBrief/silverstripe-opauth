@@ -105,19 +105,40 @@ class OpauthRegisterForm extends Form {
 	 */
 	public function populateFromSources(SS_HTTPRequest $request = null, Member $member = null, array $required = null) {
 		$dataPath = "FormInfo.{$this->FormName()}.data";
-		// Hacky again :(
-		if(Session::get($dataPath)) {
-			$this->loadDataFrom(Session::get($dataPath));
-		}
-		else if(isset($member)) {
+		if(isset($member)) {
 			$this->loadDataFrom($member);
 		}
 		else if(isset($request)) {
 			$this->loadDataFrom($request->postVars());
 		}
+		// Hacky again :(
+		else if(Session::get($dataPath)) {
+			$this->loadDataFrom(Session::get($dataPath));
+		}
+		else if($failover = $this->getSessionData()) {
+			$this->loadDataFrom($failover);
+		}
 		if(!empty($required)) {
 			$this->setRequiredFields($required);
 		}
+		return $this;
+	}
+
+	/**
+	 * Set failover data, so a user can refresh without losing his or her data
+	 * @param mixed $data Any type useable with $this->loadDataFrom
+	 */
+	public function setSessionData($data) {
+		Session::set($this->class.'.data', $data);
+		return $this;
+	}
+
+	public function getSessionData() {
+		return Session::get($this->class.'.data');
+	}
+
+	public function clearSessionData() {
+		Session::clear($this->class.'.data');
 		return $this;
 	}
 
@@ -127,13 +148,6 @@ class OpauthRegisterForm extends Form {
 	 */
 	public function mockErrors() {
 		$this->validate();
-	}
-
-	public function loadDataFrom($data, $mergeStrategy = 0, $fieldList = null) {
-		$return = parent::loadDataFrom($data, $mergeStrategy, $fieldList);
-		$data = $this->getData();
-		Session::set("FormInfo.{$this->FormName()}.data", $this->getData());
-		return $return;
 	}
 
 }
