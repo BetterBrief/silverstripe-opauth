@@ -4,7 +4,7 @@
 Uses the [Opauth library](http://opauth.org) for easy drop-in strategies for social login. See their [documentation](https://github.com/opauth/opauth/wiki/)
 
 ## Current Status
-Beta; undergoing testing
+Tested, no known major issues. Report issues using the [bug tracker](https://github.com/BetterBrief/silverstripe-opauth/issues).
 
 We intend to release it as a full SilverStripe module that supports Opauth fully in the next few weeks.
 
@@ -20,7 +20,8 @@ Other than that, the user flow is quite simple. Provided all required data is th
 ## Requirements
 
  * SilverStripe 3.1 (maybe 3.0, but untested so far)
- * At least one Opauth stratagy
+ * At least one Opauth strategy
+ * Preferably, allow_url_fopen enabled in php.ini. We've written a custom cURL workaround that works with Twitter, Google and Facebook strategies, but it's proprietary.
 
 ## FAQ
 

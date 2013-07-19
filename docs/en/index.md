@@ -6,12 +6,13 @@ Uses the [Opauth library](http://opauth.org) for easy drop-in strategies for soc
 We intend to release it as a full SilverStripe module that supports Opauth fully in the next few weeks.
 
 ## Current Status
-Pre-alpha - In development
+Tested, no known major issues. Report issues using the [bug tracker](https://github.com/BetterBrief/silverstripe-opauth/issues).
 
 ## Requirements
 
  * SilverStripe 3.0+
  * At least one Opauth stratagy
+ * Preferably, allow_url_fopen enabled in php.ini. We've written a custom cURL workaround that works with Twitter, Google and Facebook strategies, but it's proprietary.
 
 ## Documentation
 Please read the [Opauth documentation](https://github.com/opauth/opauth/wiki/) and [our own documentation](docs/en/)
