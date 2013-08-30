@@ -375,15 +375,6 @@ class OpauthStrategy{
 
 		$stream = array_merge($options, $stream);
 
-		if(extension_loaded('curl')) {
-			$curlOpts = array(
-				CURLOPT_POST => true,
-				CURLOPT_POSTFIELDS => $stream['http']['content'],
-				CURLOPT_HTTPHEADER => $stream['http']['header'],
-			);
-			return self::curlHttpRequest($url, $curlOpts, $responseHeaders);
-		}
-
 		return self::httpRequest($url, $stream, $responseHeaders);	
 	}
 	
@@ -425,9 +416,8 @@ class OpauthStrategy{
 			CURLOPT_HEADER => true,
 			CURLOPT_SSL_VERIFYPEER => false,
 		));
-		// @todo: do something with the options (curl != stream_context_create)
 		if(!empty($options)) {
-			curl_setopt_array($ch, $options);
+			curl_setopt_array($ch, self::streamToCurlOpts($options));
 		}
 		$response = curl_exec($ch);
 		list($responseHeaders, $content) = explode("\r\n\r\n", $response, 2);
@@ -502,4 +492,31 @@ class OpauthStrategy{
 		return $value;
 	}
 	
+	/**
+	 * For a cURL fallback, convert as many relevant stream based options in to
+	 * their cURL equivalent formats.
+	 * If none was found then return an empty array to prevent errors.
+	 * @param array of options used in stream_context_create
+	 * @return array
+	 */
+	protected static function streamToCurlOpts($options) {
+		if(!isset($options['http'])) {
+			return array();
+		}
+		$http = $options['http'];
+		$curlOpts = array();
+		if(isset($http['header'])) {
+			$stripped = str_replace("\r", '', $http['header']);
+			$curlOpts[CURLOPT_HTTPHEADER] = explode("\n", $stripped);
+		}
+		if(isset($http['content'])) {
+			$curlOpts[CURLOPT_POSTFIELDS] = $http['content'];
+		}
+		if(isset($http['method'])) {
+			$curlOpts[CURLOPT_CUSTOMREQUEST] = $http['method'];
+		}
+		return $curlOpts;
+
+	}
+
 }
