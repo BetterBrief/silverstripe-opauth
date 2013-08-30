@@ -159,6 +159,9 @@ class OpauthIdentity extends DataObject {
 	 */
 	public function getMemberMapper() {
 		$mapper = Config::inst()->get(__CLASS__, 'member_mapper');
+		if(!isset($mapper[$this->Provider])) {
+			return array();
+		}
 		return $mapper[$this->Provider];
 	}
 
