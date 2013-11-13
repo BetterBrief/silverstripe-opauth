@@ -28,6 +28,12 @@ class OpauthIdentity extends DataObject {
 		 */
 		$parsedRecord;
 
+	private
+		/**
+		 * @var boolean shim for onBeforeCreate
+		 */
+		$_isCreating = false;
+
 	/**
 	 * factory
 	 * Returns or creates a fresh OpauthIdentity.
@@ -60,6 +66,31 @@ class OpauthIdentity extends DataObject {
 
 		$do->setAuthSource($auth);
 		return $do;
+	}
+
+	/**
+	 * Add an extension point for creation and member linking
+	 */
+	public function onBeforeWrite() {
+		parent::onBeforeWrite();
+		if(!$this->isInDb()) {
+			$this->_isCreating = true;
+			$this->extend('onBeforeCreate');
+		}
+		if($this->isChanged('MemberID')) {
+			$this->extend('onMemberLinked');
+		}
+	}
+
+	/**
+	 * Add an extension point for afterCreate
+	 */
+	public function onAfterWrite() {
+		parent::onAfterWrite();
+		if($this->_isCreating === true) {
+			$this->_isCreating = false;
+			$this->extend('onAfterCreate');
+		}
 	}
 
 	/**

@@ -124,6 +124,7 @@ class OpauthController extends ContentController {
 				return $this->redirect($this->Link('profilecompletion'));
 			}
 			else {
+				$member->extend('onBeforeOpauthRegister');
 				$member->write();
 				$identity->MemberID = $member->ID;
 				$identity->write();
@@ -212,6 +213,7 @@ class OpauthController extends ContentController {
 		}
 		// If valid then write and redirect
 		else {
+			$member->extend('onBeforeOpauthRegister');
 			$member->write();
 			$identity->MemberID = $member->ID;
 			$identity->write();
@@ -308,7 +310,9 @@ class OpauthController extends ContentController {
 				$message = _t(
 					'OpauthLoginForm.OAUTHFAILURE',
 					'There was a problem logging in with {provider}.',
-					$data
+					array(
+						'provider' => $data['provider'],
+					)
 				);
 			break;
 			case 2: // validation error
