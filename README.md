@@ -5,7 +5,7 @@ Uses the [Opauth library](http://opauth.org) for easy drop-in strategies for soc
 
 ## Current Status
 
-1.0 - tested, no known major issues; stable. Report issues using the [bug tracker](https://github.com/BetterBrief/silverstripe-opauth/issues).
+1.1 - stable. No known major issues. Report issues using the [bug tracker](https://github.com/BetterBrief/silverstripe-opauth/issues).
 
 ## How does it work?
 The module provides an additional login form which the developer has control over, that allows users to instantly sign in to your website with an identity provided by any Oauth provider. The providers are each handled by using an `OpauthStrategy`, many of which are freely available. There are strategies for Facebook, Twitter, Google, and many more.
