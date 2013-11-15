@@ -21,6 +21,23 @@ class OpauthController extends ContentController {
 			'finished' => 'finished',
 		);
 
+	/**
+	 * Bitwise indicators to extensions what sort of action is happening
+	 */
+	const
+		/**
+		 * LOGIN = already a user with an OAuth ID
+		 */
+		AUTH_FLAG_LOGIN = 2,
+		/**
+		 * LINK = already a user, linking a new OAuth ID
+		 */
+		AUTH_FLAG_LINK = 4,
+		/**
+		 * REGISTER = new user, linking OAuth ID
+		 */
+		AUTH_FLAG_REGISTER = 8;
+
 	protected
 		$registerForm;
 
@@ -84,6 +101,8 @@ class OpauthController extends ContentController {
 
 		$opauth = OpauthAuthenticator::opauth(false);
 
+		$flag = 0;
+
 		$response = $this->getOpauthResponse();
 
 		// Clear the response as it is only to be read once (if Session)
@@ -105,9 +124,16 @@ class OpauthController extends ContentController {
 		if($member->isInDB() && $member->validate()->valid()) {
 			if(!$identity->exists()) {
 				$identity->write();
+				$flag = self::AUTH_FLAG_LINK;
+			}
+			else {
+				$flag = self::AUTH_FLAG_LOGIN;
 			}
 		}
 		else {
+
+			$flag = self::AUTH_FLAG_REGISTER;
+
 			// Write the identity
 			$identity->write();
 
@@ -130,10 +156,15 @@ class OpauthController extends ContentController {
 				$identity->write();
 			}
 		}
-		return $this->loginAndRedirect($member);
+		return $this->loginAndRedirect($member, $identity, $flag);
 	}
 
-	protected function loginAndRedirect(Member $member) {
+	/**
+	 * @param Member
+	 * @param OpauthIdentity
+	 * @param int $mode One or more AUTH_FLAGs.
+	 */
+	protected function loginAndRedirect(Member $member, OpauthIdentity $identity, $mode) {
 		// Back up the BackURL as Member::logIn regenerates the session
 		$backURL = Session::get('BackURL');
 
@@ -144,7 +175,6 @@ class OpauthController extends ContentController {
 			Security::permissionFailure($this, $canLogIn->message());
 			return;
 		}
-		$member->logIn();
 
 		// Decide where to go afterwards...
 		if(!empty($backURL)) {
@@ -153,6 +183,14 @@ class OpauthController extends ContentController {
 		else {
 			$redirectURL = Security::config()->default_login_dest;
 		}
+
+		$extendedURLs = $this->extend('getSuccessBackURL', $member, $identity, $redirectURL, $mode);
+
+		if(count($extendedURLs)) {
+			$redirectURL = array_pop($extendedURLs);
+		}
+
+		$member->logIn();
 
 		// Clear any identity ID
 		Session::clear('OpauthIdentityID');
@@ -217,7 +255,7 @@ class OpauthController extends ContentController {
 			$member->write();
 			$identity->MemberID = $member->ID;
 			$identity->write();
-			return $this->loginAndRedirect($member);
+			return $this->loginAndRedirect($member, $identity, self::AUTH_FLAG_REGISTER);
 		}
 	}
 
