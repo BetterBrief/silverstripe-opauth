@@ -186,6 +186,13 @@ class OpauthIdentity extends DataObject {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getAuthSource() {
+		return $this->authSource;
+	}
+
+	/**
 	 * @return array The mapping arrangement from auth response to Member.
 	 */
 	public function getMemberMapper() {
