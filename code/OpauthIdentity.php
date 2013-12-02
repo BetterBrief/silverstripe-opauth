@@ -16,6 +16,11 @@ class OpauthIdentity extends DataObject {
 		),
 		$has_one = array(
 			'Member' => 'Member',
+		),
+		$summary_fields = array(
+			'Member.Email' => 'MemberEmail',
+			'Provider' => 'Provider',
+			'UID' => 'UID',
 		);
 
 	protected
