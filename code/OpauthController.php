@@ -8,7 +8,7 @@
  * @author Dan Hensby <@dhensby>
  * @copyright Copyright (c) 2013, Better Brief LLP
  */
-class OpauthController extends ContentController {
+class OpauthController extends Controller {
 
 	private static
 		$allowed_actions = array(
