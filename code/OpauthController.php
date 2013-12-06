@@ -155,6 +155,9 @@ class OpauthController extends ContentController {
 
 		// Clear any identity ID
 		Session::clear('OpauthIdentityID');
+		
+		// Clear the BackURL
+		Session::clear('BackURL');
 
 		return $this->redirect($redirectURL);
 	}
