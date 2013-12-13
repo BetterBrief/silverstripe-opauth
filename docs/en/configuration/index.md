@@ -61,6 +61,7 @@ If you wish to run some special logic at certain points of the authentication pr
 
 #### OpauthController
 * `getSuccessBackURL`, called before the Member is logged in and redirected. This is handy for overriding the BackURL if you need to send the user off for further processes.
+* `getCantLoginBackURL`, called if the validation logic in `Member->canLogIn` returns false (i.e. you can't login yet, even if you have completed the Opauth process successfully). Handy for overriding the BackURL and doing something more interesting than `Security::permissionFailure` if you need a user to do more things before being fully signed up, like verify their email, etc.
 
 The extension points can be accessed using the standard SilverStripe DataExtension system, and should cover a lot of use cases where special business logic must happen.
 Since you can access the full object on the extended event, you can even customise your logic based on the identity provider for this request.
