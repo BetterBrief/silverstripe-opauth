@@ -172,6 +172,12 @@ class OpauthController extends ContentController {
 		$canLogIn = $member->canLogIn();
 
 		if(!$canLogIn->valid()) {
+			$extendedURLs = $this->extend('getCantLoginBackURL', $member, $identity, $canLogIn, $mode);
+			if(count($extendedURLs)) {
+				$redirectURL = array_pop($extendedURLs);
+				$this->redirect($redirectURL, 302);
+				return;
+			}
 			Security::permissionFailure($this, $canLogIn->message());
 			return;
 		}
