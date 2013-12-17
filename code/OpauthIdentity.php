@@ -16,6 +16,11 @@ class OpauthIdentity extends DataObject {
 		),
 		$has_one = array(
 			'Member' => 'Member',
+		),
+		$summary_fields = array(
+			'Member.Email' => 'MemberEmail',
+			'Provider' => 'Provider',
+			'UID' => 'UID',
 		);
 
 	protected
@@ -27,6 +32,12 @@ class OpauthIdentity extends DataObject {
 		 * @var array The parsed member record, if any
 		 */
 		$parsedRecord;
+
+	private
+		/**
+		 * @var boolean shim for onBeforeCreate
+		 */
+		$_isCreating = false;
 
 	/**
 	 * factory
@@ -60,6 +71,31 @@ class OpauthIdentity extends DataObject {
 
 		$do->setAuthSource($auth);
 		return $do;
+	}
+
+	/**
+	 * Add an extension point for creation and member linking
+	 */
+	public function onBeforeWrite() {
+		parent::onBeforeWrite();
+		if(!$this->isInDb()) {
+			$this->_isCreating = true;
+			$this->extend('onBeforeCreate');
+		}
+		if($this->isChanged('MemberID')) {
+			$this->extend('onMemberLinked');
+		}
+	}
+
+	/**
+	 * Add an extension point for afterCreate
+	 */
+	public function onAfterWrite() {
+		parent::onAfterWrite();
+		if($this->_isCreating === true) {
+			$this->_isCreating = false;
+			$this->extend('onAfterCreate');
+		}
 	}
 
 	/**
@@ -152,6 +188,13 @@ class OpauthIdentity extends DataObject {
 		$this->authSource = $auth;
 		unset($this->parsedRecord);
 		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getAuthSource() {
+		return $this->authSource;
 	}
 
 	/**
