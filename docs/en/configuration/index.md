@@ -7,7 +7,9 @@ The Opauth configuration system has been adapted to fit into the SilverStripe Co
 ## Registering a strategy
 All strategies you want to use will need to be registered with the module. No strategies are included by default and it's completely up to you which you'd like to use. You can even [write your own](https://github.com/opauth/opauth/wiki/Strategy-Contribution-Guide).
 
-To add the FacebookStrategy, first [download it](https://github.com/opauth/facebook#getting-started) from git hub and place it into your opauth strategies folder. We recommentd mysite/code/thirdparty as a good location for them.
+To add the Facebook Strategy, install it via composer:
+
+	composer require "opauth/facebook:*"
 
 Once you've downloaded the stratagies you want, you'll need to register them. This is how you'd do it if you were registering the Facebook Strategy:
 
