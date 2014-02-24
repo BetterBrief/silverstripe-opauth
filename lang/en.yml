@@ -8,3 +8,5 @@ en:
   OpauthController:
     TITLE: 'Social login'
     PROFILECOMPLETIONTITLE: 'Complete your profile to register'
+  OpauthMemberLoginFormExtension:
+    NoResetPassword: 'Can''t reset password for accounts registered through {provider}'

@@ -65,3 +65,6 @@ If you wish to run some special logic at certain points of the authentication pr
 
 The extension points can be accessed using the standard SilverStripe DataExtension system, and should cover a lot of use cases where special business logic must happen.
 Since you can access the full object on the extended event, you can even customise your logic based on the identity provider for this request.
+
+#### OpauthMemberLoginFormExtension
+* `allow_password_reset`: Config setting to disable password resets for `Member` records which are linked with an identity provider (requires SilverStripe 3.1.4 or newer)

@@ -13,3 +13,6 @@ OpauthAuthenticator:
 Member:
   has_many:
     OpauthIdentities: OpauthIdentity
+MemberLoginForm:
+  extensions:
+    - OpauthMemberLoginFormExtension
