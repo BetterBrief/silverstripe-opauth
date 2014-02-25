@@ -137,11 +137,12 @@ class OpauthController extends ContentController {
 			// Write the identity
 			$identity->write();
 
+			// Keep a note of the identity ID
+			Session::set('OpauthIdentityID', $identity->ID);
+
 			// Even if written, check validation - we might not have full fields
 			$validationResult = $member->validate();
 			if(!$validationResult->valid()) {
-				// Keep a note of the identity ID
-				Session::set('OpauthIdentityID', $identity->ID);
 				// Set up the register form before it's output
 				$regForm = $this->RegisterForm();
 				$regForm->loadDataFrom($member);
