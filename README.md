@@ -1,5 +1,7 @@
 # SilverStripe Opauth Module
 
+[![Build Status](https://secure.travis-ci.org/BetterBrief/silverstripe-opauth.png?branch=master)](http://travis-ci.org/BetterBrief/silverstripe-opauth)
+
 ## Introduction
 Uses the [Opauth library](http://opauth.org) for easy drop-in strategies for social login. See their [documentation](https://github.com/opauth/opauth/wiki/)
 
