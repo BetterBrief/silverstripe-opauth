@@ -10,7 +10,7 @@ class OpauthIdentityTest extends SapphireTest {
 			'Facebook' => array(
 				'FirstName' => 'info.first_name',
 				'Surname' => 'info.last_name',
-				'Locale' => 'raw.locale',
+				'Email' => 'info.email',
 			)
 		));
 	}
