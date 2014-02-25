@@ -21,4 +21,4 @@ before_script:
  - composer require opauth/facebook:0.2.*
 
 script: 
- - phpunit opauth/tests/unit/
+ - phpunit silverstripe-opauth/tests/unit/
