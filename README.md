@@ -69,6 +69,7 @@ OpauthAuthenticator:
       Facebook:
         app_id: ''
         app_secret: ''
+        scope: email
       Google:
         client_id: ''
         client_secret: ''
@@ -86,6 +87,7 @@ OpauthIdentity:
       FirstName: 'info.first_name'
       Surname: 'info.last_name'
       Locale: 'raw.locale'
+      Email: 'info.email'
     Twitter:
       FirstName: ['OpauthResponseHelper', 'get_first_name']
       Surname: ['OpauthResponseHelper', 'get_last_name']
@@ -104,7 +106,8 @@ Config::inst()->update('OpauthAuthenticator', 'opauth_settings', array(
   'Strategy' => array(
     'Facebook' => array(
       'app_id' => '',
-      'app_secret' => ''
+      'app_secret' => '',
+      'scope' => 'email',
     ),
     'Google' => array(
       'client_id' => '',
@@ -119,22 +122,23 @@ Config::inst()->update('OpauthAuthenticator', 'opauth_settings', array(
 
 //Identity to member mapping settings per strategy
 Config::inst()->update('OpauthIdentity', 'member_mapper', array(
-	'Facebook' => array(
-		'FirstName' => 'info.first_name',
-		'Surname' => 'info.last_name',
-		'Locale' => 'raw.locale',
-	),
-	'Twitter' => array(
-		'FirstName' => array('OpauthResponseHelper', 'get_first_name'),
-		'Surname' => array('OpauthResponseHelper', 'get_last_name'),
-		'Locale' => array('OpauthResponseHelper', 'get_twitter_locale'),
-	),
-	'Google' => array(
-		'FirstName' => 'info.first_name',
-		'Surname' => 'info.last_name',
-		'Email' => 'info.email',
-		'Locale' => array('OpauthResponseHelper', 'get_google_locale'),
-	),
+  'Facebook' => array(
+    'FirstName' => 'info.first_name',
+    'Surname' => 'info.last_name',
+    'Locale' => 'raw.locale',
+    'Email' => 'info.email',
+  ),
+  'Twitter' => array(
+    'FirstName' => array('OpauthResponseHelper', 'get_first_name'),
+    'Surname' => array('OpauthResponseHelper', 'get_last_name'),
+    'Locale' => array('OpauthResponseHelper', 'get_twitter_locale'),
+  ),
+  'Google' => array(
+    'FirstName' => 'info.first_name',
+    'Surname' => 'info.last_name',
+    'Email' => 'info.email',
+    'Locale' => array('OpauthResponseHelper', 'get_google_locale'),
+  ),
 ));
 ```
 
