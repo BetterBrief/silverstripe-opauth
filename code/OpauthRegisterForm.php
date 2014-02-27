@@ -100,7 +100,7 @@ class OpauthRegisterForm extends Form {
 	 * @return RequiredFields
 	 */
 	public function getValidator() {
-		return new OpauthValidator($this->requiredFields);
+		return Injector::inst()->create('OpauthValidator', $this->requiredFields);
 	}
 
 	/**

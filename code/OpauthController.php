@@ -223,7 +223,7 @@ class OpauthController extends ContentController {
 
 	public function RegisterForm(SS_HTTPRequest $request = null, Member $member = null, $result = null) {
 		if(!isset($this->registerForm)) {
-			$form = new OpauthRegisterForm($this, 'RegisterForm', $result);
+			$form = Injector::inst()->create('OpauthRegisterForm', $this, 'RegisterForm', $result);
 			$form->populateFromSources($request, $member, $result);
 			// Set manually the form action due to how routing works
 			$form->setFormAction(Controller::join_links(
