@@ -65,7 +65,7 @@ class OpauthAuthenticator extends MemberAuthenticator {
 	 * @return OpauthLoginForm
 	 */
 	public static function get_login_form(Controller $controller) {
-		return new OpauthLoginForm($controller, 'LoginForm');
+		return Injector::inst()->create('OpauthLoginForm', $controller, 'LoginForm');
 	}
 
 	/**
