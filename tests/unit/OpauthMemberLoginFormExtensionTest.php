@@ -2,6 +2,8 @@
 class OpauthMemberLoginFormExtensionTest extends SapphireTest {
 
 	public function testForgotPasswordVeto() {
+		Config::inst()->update('OpauthMemberLoginFormExtension', 'allow_password_reset', false);
+
 		$memberWithoutPassword = new Member(array(
 			'Email' => 'withoutpassword@test.com'
 		));
