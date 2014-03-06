@@ -11,8 +11,8 @@ OpauthAuthenticator:
     security_timeout: '2 minutes'
     callback_transport: 'session'
 Member:
-  has_many:
-    OpauthIdentities: OpauthIdentity
+  extensions:
+    - OpauthMemberExtension
 MemberLoginForm:
   extensions:
     - OpauthMemberLoginFormExtension
