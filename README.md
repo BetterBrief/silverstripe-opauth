@@ -1,6 +1,8 @@
 # SilverStripe Opauth Module
 
 [![Build Status](https://secure.travis-ci.org/BetterBrief/silverstripe-opauth.png?branch=1.1)](http://travis-ci.org/BetterBrief/silverstripe-opauth)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/BetterBrief/vagrant-skeleton/badges/quality-score.png?s=f3538c088db02d13de8a69c84758d1dee20b2de7)](https://scrutinizer-ci.com/g/BetterBrief/vagrant-skeleton/)
+[![Code Coverage](https://scrutinizer-ci.com/g/BetterBrief/vagrant-skeleton/badges/coverage.png?s=59e4aa9ef61b6c4bb6bf3262d0214eeac82aa363)](https://scrutinizer-ci.com/g/BetterBrief/vagrant-skeleton/)
 
 ## Introduction
 Uses the [Opauth library](http://opauth.org) for easy drop-in strategies for social login. See their [documentation](https://github.com/opauth/opauth/wiki/)
