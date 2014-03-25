@@ -129,6 +129,8 @@ class OpauthController extends ContentController {
 			else {
 				$flag = self::AUTH_FLAG_LOGIN;
 			}
+
+			Session::set('OpauthIdentityID', $identity->ID);
 		}
 		else {
 
