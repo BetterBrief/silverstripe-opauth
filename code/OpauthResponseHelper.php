@@ -57,7 +57,7 @@ class OpauthResponseHelper {
 	 * Try very hard to get a locale for this user. Helps for i18n etc.
 	 * @return string
 	 */
-	public static function get_smart_locale($language = null, $timeZone = null) {
+	public static function get_smart_locale($language = null) {
 
 		require_once FRAMEWORK_PATH . '/thirdparty/Zend/Locale.php';
 		$locale = Zend_Locale::getBrowser();
