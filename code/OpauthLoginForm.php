@@ -38,7 +38,7 @@ class OpauthLoginForm extends LoginForm {
 	 * Use the same session key as MemberLoginForm for x-compat
 	 */
 	public function configureBackURL() {
-		if($backURL = $this->controller->request->param('BackURL')) {
+		if($backURL = $this->controller->request->requestVar('BackURL')) {
 			Session::set('BackURL', $backURL);
 		}
 	}
