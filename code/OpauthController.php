@@ -349,8 +349,9 @@ class OpauthController extends ContentController {
 	protected function handleOpauthException(OpauthValidationException $e) {
 		$data = $e->getData();
 		
-		$form = OpauthLoginForm::create($this, FieldList::create(), FieldList::create());
-		$loginFormName = get_class($form);
+		$attr = OpauthLoginForm::create($this, 'OpauthLoginForm', FieldList::create(), FieldList::create())
+			->getAttributes();
+		$loginFormName = $attr['id'];
 		$message = '';
 		
 		switch($e->getCode()) {
