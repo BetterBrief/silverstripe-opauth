@@ -56,7 +56,7 @@ You define the `OpauthIdentity` `member_mapper` block in your `_config.yml`. Sim
 ### How do I configure the module and its strategies?
 All Opauth-specific configuration variables can be put under `opauth_settings` and are passed directly to `Opauth`.
 
-You can put these settomgs in your `_config.yml` file. Additionally, as your strategy API details will likely change per domain and thus per environment, you are able to update these using the `Config` API. Please see the [Opauth config documentation](https://github.com/opauth/opauth/wiki/Opauth-configuration#configuration-array). Here's some examples to help you:
+You can put these settings in your `_config.yml` file. Additionally, as your strategy API details will likely change per domain and thus per environment, you are able to update these using the `Config` API. Please see the [Opauth config documentation](https://github.com/opauth/opauth/wiki/Opauth-configuration#configuration-array). Here's some examples to help you:
 
 ###### `_config.yml` example:
 ```yml
