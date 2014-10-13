@@ -90,7 +90,7 @@ class OpauthRegisterForm extends Form {
 	 */
 	public function getActions() {
 		$actions = new FieldList(array(
-			new FormAction('doCompleteRegister', 'Complete'),
+			new FormAction('doCompleteRegister',  _t('OpauthRegisterForm.COMPLETE', 'Complete')),
 		));
 		$results = $this->extend('updateActions', $actions);
 		return $actions;
