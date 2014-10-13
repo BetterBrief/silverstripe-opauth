@@ -8,3 +8,5 @@ en_GB:
   OpauthController:
     TITLE: 'Social login'
     PROFILECOMPLETIONTITLE: 'Complete your profile to register'
+  OpauthRegisterForm:
+    COMPLETE: 'Complete'
