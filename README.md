@@ -25,6 +25,7 @@ Other than that, the user flow is quite simple. Provided all required data is th
  * SilverStripe 3.1 (maybe 3.0, but untested so far)
  * At least one Opauth strategy
  * Preferably, allow_url_fopen enabled in php.ini. We've written a custom cURL workaround that works with Twitter, Google and Facebook strategies, but it's proprietary.
+ * For extended cURL support we rely on an opauth fork
 
 ## FAQ
 
@@ -45,10 +46,7 @@ You can find them under the "Available Strategies" heading on the [Opauth homepa
 Alternatively, you can find them in the [bundle package](http://opauth.org/download.php).
 
 ### Where should I put strategies?
-We recommend putting them under `mysite/code/thirdparty`, but it's up to you. Any root level directory that contains a `_config.php` (empty or otherwise) is scanned by the manifest builder.
-
-### Why isn't SilverStripe finding my stratagies in `mysite/code/thirdparty`?
-It could be you're super clever and have a `_manifest_exclude` file in your `thirdparty` folder, preventing it being spidered by SilverStripe's manifest builder. Try moving the stratagies folder to mysite/code/opauth/
+Use composer to require your strategies
 
 ### How do I map the API responses to a `Member`?
 You define the `OpauthIdentity` `member_mapper` block in your `_config.yml`. Simply provide a hash map of member fields to dot notated paths of the Opauth response array for simple fields, or if you need to perform some parsing to retrieve the value you want, an array of class name and function, like `['OpauthResponseHelper', 'get_first_name']`. It takes the auth response array as an argument. See the example config YAML below for more details.
