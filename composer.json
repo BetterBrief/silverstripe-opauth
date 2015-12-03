@@ -18,10 +18,16 @@
 		}
 	],
 	"require": {
-		"php": ">=5.3.0",
-		"opauth/opauth": "dev-master"
+		"silverstripe/framework": "~3.1",
+		"opauth/opauth": "~0.4.5"
 	},
-	"extra" : {
-		"installer-name": "opauth"
-	}
+	"require-dev": {
+		"phpunit/phpunit": "~3.7"
+	},
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/dhensby/opauth"
+        }
+    ]
 }

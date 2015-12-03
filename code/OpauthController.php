@@ -84,7 +84,7 @@ class OpauthController extends ContentController {
 	protected function oauthCallback(SS_HTTPRequest $request) {
 
 		// Set up and run opauth with the correct params from the strategy:
-		$opauth = OpauthAuthenticator::opauth(true, array(
+		OpauthAuthenticator::opauth(true, array(
 			'strategy'	=> $request->param('Strategy'),
 			'action'	=> $request->param('StrategyMethod'),
 		));
@@ -101,10 +101,11 @@ class OpauthController extends ContentController {
 
 		$opauth = OpauthAuthenticator::opauth(false);
 
-		$flag = 0;
-
 		$response = $this->getOpauthResponse();
 
+		if (!$response) {
+			$response = array();
+		}
 		// Clear the response as it is only to be read once (if Session)
 		Session::clear('opauth');
 
@@ -282,14 +283,11 @@ class OpauthController extends ContentController {
 		switch($transportMethod) {
 			case 'session':
 				return $this->getResponseFromSession();
-			break;
 			case 'get':
 			case 'post':
 				return $this->getResponseFromRequest($transportMethod);
-			break;
 			default:
 				throw new InvalidArgumentException('Invalid transport method: ' . $transportMethod);
-			break;
 		}
 	}
 
@@ -314,7 +312,7 @@ class OpauthController extends ContentController {
 			$response['auth']
 		);
 
-		$invalidReason;
+		$invalidReason = '';
 
 		/**
 		 * @todo: improve this signature check. it's a bit weak.
@@ -354,7 +352,7 @@ class OpauthController extends ContentController {
 	protected function handleOpauthException(OpauthValidationException $e) {
 		$data = $e->getData();
 		$loginFormName = 'OpauthLoginForm_LoginForm';
-		$message;
+		$message = '';
 		switch($e->getCode()) {
 			case 1: // provider error
 				$message = _t(
@@ -364,7 +362,7 @@ class OpauthController extends ContentController {
 						'provider' => $data['provider'],
 					)
 				);
-			break;
+				break;
 			case 2: // validation error
 			case 3: // invalid auth response
 				$message = _t(
@@ -374,7 +372,7 @@ class OpauthController extends ContentController {
 						'message' => $e->getMessage(),
 					)
 				);
-			break;
+				break;
 		}
 		// Set form message, redirect to login with permission failure
 		Form::messageForForm($loginFormName, $message, 'bad');
