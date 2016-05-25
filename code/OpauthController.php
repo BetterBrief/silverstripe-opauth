@@ -52,6 +52,23 @@ class OpauthController extends ContentController {
 	}
 
 	/**
+	 * Prepare the controller for handling the response to this request
+	 *
+	 * @param string $title Title to use
+	 * @return Controller
+	 */
+	protected function getResponseController($title) {
+		if(!class_exists('SiteTree')) return $this;
+
+		// Use sitetree pages to render the opauth pages
+		$tmpPage = new Page();
+		
+		$controller = Page_Controller::create($tmpPage);
+		$controller->init();
+		return $controller;
+	}
+
+	/**
 	 * This function only catches the request to pass it straight on.
 	 * Opauth uses the last segment of the URL to identify the auth method.
 	 * In _routes.yml we enforce a $Strategy request parameter to enforce this.
@@ -212,6 +229,9 @@ class OpauthController extends ContentController {
 	}
 
 	public function profilecompletion(SS_HTTPRequest $request = null) {
+		// Get response handler
+		$controller = $this->getResponseController(_t('Opauth.PROFILECOMPLETIONTITLE', 'Complete your profile'));
+		
 		if(!Session::get('OpauthIdentityID')) {
 			Security::permissionFailure($this);
 		}
