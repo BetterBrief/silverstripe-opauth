@@ -62,6 +62,8 @@ class OpauthController extends ContentController {
 
 		// Use sitetree pages to render the opauth pages
 		$tmpPage = new Page();
+		$tmpPage->ID = -1;
+		$tmpPage->Title = $title;
 		
 		$controller = ModelAsController::controller_for($tmpPage);
 		$controller->init();
