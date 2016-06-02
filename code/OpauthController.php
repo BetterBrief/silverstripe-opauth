@@ -46,7 +46,7 @@ class OpauthController extends ContentController {
 	 */
 	public function __construct($dataRecord = null) {
 		if(class_exists('Page_Controller')) {
-			$dataRecord = new Page_Controller($dataRecord);
+			$dataRecord = new OpauthPageController($dataRecord);
 		}
 		parent::__construct($dataRecord);
 	}
