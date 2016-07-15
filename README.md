@@ -1,3 +1,5 @@
+**This module depends on Opauth which is no longer maintained - we don't recommend continuing to use this module as we aren't actively developing it any longer.**
+
 # SilverStripe Opauth Module
 
 [![Build Status](https://secure.travis-ci.org/BetterBrief/silverstripe-opauth.png?branch=master)](http://travis-ci.org/BetterBrief/silverstripe-opauth)
@@ -8,7 +10,6 @@
 Uses the [Opauth library](http://opauth.org) for easy drop-in strategies for social login. See their [documentation](https://github.com/opauth/opauth/wiki/)
 
 ## Current Status
-
 1.1 - stable. No known major issues. Report issues using the [bug tracker](https://github.com/BetterBrief/silverstripe-opauth/issues).
 
 ## How does it work?
