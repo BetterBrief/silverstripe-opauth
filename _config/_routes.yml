@@ -5,7 +5,7 @@ After: framework/routes#rootroutes
 # Config weirdness - confusing.
 # Remember to replicate this path with no slashes in the Director rules.
 OpauthController:
-  opauth_path: '/opauth/'
+  opauth_path: 'opauth/'
 Director:
   rules:
     'opauth/strategy/$Strategy/$StrategyMethod': 'OpauthController'
